@@ -20,9 +20,9 @@
     <div class="bg-blue-50 px-4 py-2 flex items-center justify-between">
         <div class="flex items-center gap-2">
             <span class="w-2 h-2 bg-blue-500 rounded-full animate-pulse" id="loc-dot"></span>
-            <span class="text-sm text-blue-700" id="location-status">正在定位...</span>
+            <span class="text-sm text-blue-700" id="location-status">点击页面任意位置开始定位...</span>
         </div>
-        <button onclick="getLocation()" class="text-sm text-blue-600">刷新</button>
+        <button onclick="requestLocation()" class="text-sm text-blue-600">刷新</button>
     </div>
 
     <div id="places-list" class="divide-y"></div>
@@ -85,7 +85,8 @@
                         </div>
                         <div class="text-right">
                             <p class="text-lg font-semibold text-blue-600">${p.dist.toFixed(1)}km</p>
-                            <a href="https://uri.amap.com/navigation?to=${p.lng},${p.lat},${p.name}&mode=car&coordinate=gaode" 
+                            <a href="https://uri.amap.com/navigation?to=${p.lng},${p.lat},${encodeURIComponent(p.name)}&mode=car&coordinate=gaode" 
+                               onclick="return openAmap('${p.name}', ${p.lat}, ${p.lng});"
                                class="inline-block mt-2 bg-blue-500 text-white text-xs px-3 py-1.5 rounded">导航</a>
                         </div>
                     </div>
@@ -120,8 +121,65 @@
             }
         }
 
-        // 页面加载时自动定位
-        getLocation();
+        // 打开高德地图（支持iOS和Android）
+        function openAmap(name, lat, lng) {
+            const encodedName = encodeURIComponent(name);
+            // iOS 高德地图协议
+            const iosUrl = `iosamap://path?sourceApplication=反打卡地图&dlat=${lat}&dlon=${lng}&dname=${encodedName}&dev=0&m=0&t=0`;
+            // Android 高德地图协议
+            const androidUrl = `amapuri://route/plan/?dlat=${lat}&dlon=${lng}&dname=${encodedName}&dev=0&t=0`;
+            // 网页版兜底
+            const webUrl = `https://uri.amap.com/navigation?to=${lng},${lat},${encodedName}&mode=car&coordinate=gaode`;
+            
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            const url = isIOS ? iosUrl : androidUrl;
+            
+            // 尝试打开App，如果失败则跳转网页版
+            window.location.href = url;
+            setTimeout(() => {
+                window.location.href = webUrl;
+            }, 500);
+            
+            return false;
+        }
+
+        // Safari定位权限处理
+        function requestLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        document.getElementById('location-status').textContent = `已定位`;
+                        document.getElementById('loc-dot').classList.remove('animate-pulse');
+                        renderPlaces(lat, lng);
+                    },
+                    (error) => {
+                        let msg = '定位失败';
+                        if (error.code === 1) msg = '请允许定位权限';
+                        else if (error.code === 2) msg = '无法获取位置';
+                        else if (error.code === 3) msg = '定位超时';
+                        
+                        document.getElementById('location-status').textContent = msg + '，使用默认位置';
+                        document.getElementById('loc-dot').classList.remove('animate-pulse');
+                        renderPlaces(23.1291, 113.2644);
+                    },
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                );
+            } else {
+                document.getElementById('location-status').textContent = '浏览器不支持定位';
+                renderPlaces(23.1291, 113.2644);
+            }
+        }
+
+        // 页面加载时请求定位（Safari需要用户交互才能触发）
+        document.addEventListener('click', function init() {
+            requestLocation();
+            document.removeEventListener('click', init);
+        }, { once: true });
+        
+        // 自动尝试一次
+        requestLocation();
     </script>
 </body>
 </html>
