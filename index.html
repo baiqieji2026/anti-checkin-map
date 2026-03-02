@@ -3,354 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>我想静静</title>
     <script src="https://webapi.amap.com/maps?v=1.4.15&key=f987015a56c3e1f3e64d8364fa9844c4"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; overflow: hidden; -webkit-overflow-scrolling: touch; }
-        .home { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; transition: opacity 0.8s ease; background: #000; }
-        .home.fade-out { opacity: 0; pointer-events: none; }
-        .gallery-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; transition: opacity 0.5s ease; }
-        .gallery-bg.fade { opacity: 0; }
-        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); }
-        .content { position: relative; z-index: 10; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .btn-quiet { width: 160px; height: 160px; border-radius: 50%; background: transparent; border: 1px solid rgba(255,255,255,0.4); color: rgba(255,255,255,0.9); font-family: -apple-system, 'PingFang SC', sans-serif; font-weight: 200; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; animation: breathe 4s ease-in-out infinite; backdrop-filter: blur(4px); }
-        .btn-quiet .line1, .btn-quiet .line2 { font-size: 22px; letter-spacing: 8px; }
-        @keyframes breathe { 0%, 100% { box-shadow: 0 0 20px rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); transform: scale(1); } 50% { box-shadow: 0 0 40px rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.5); transform: scale(1.02); } }
-        .artwork-info { position: absolute; bottom: 140px; left: 0; right: 0; text-align: center; padding: 0 20px; }
-        .artwork-title { font-size: 14px; color: rgba(255,255,255,0.8); letter-spacing: 4px; margin-bottom: 4px; }
-        .artwork-artist { font-size: 12px; color: rgba(255,255,255,0.5); letter-spacing: 2px; }
-        .text-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; z-index: 5; }
-        .text-content { text-align: center; color: rgba(255,255,255,0.95); font-size: 36px; font-weight: 200; letter-spacing: 12px; line-height: 2; }
-        .map-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; }
-        .map-page.active { opacity: 1; pointer-events: auto; }
-        #gaodeMap { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
-        .map-header { position: absolute; top: 0; left: 0; right: 0; padding: 50px 16px 20px; z-index: 10; }
-        .back-btn { width: 40px; height: 40px; background: #fff; border: none; border-radius: 50%; font-size: 18px; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
-        .bottom-card { position: absolute; bottom: 0; left: 0; right: 0; background: #fff; border-radius: 20px 20px 0 0; padding: 20px; z-index: 10; }
-        .card-handle { width: 40px; height: 4px; background: #ddd; border-radius: 2px; margin: 0 auto 16px; }
-        .legend { display: flex; gap: 12px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #eee; }
-        .legend-item { display: flex; align-items: center; gap: 4px; font-size: 11px; color: #666; }
-        .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
-        .route-info { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
-        .route-icon { width: 44px; height: 44px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; }
-        .route-details { flex: 1; }
-        .route-dest { font-size: 16px; font-weight: 600; color: #333; margin-bottom: 2px; }
-        .route-meta { font-size: 13px; color: #999; }
-        .route-time { text-align: right; }
-        .time-val { font-size: 28px; font-weight: 700; color: #333; }
-        .time-unit { font-size: 11px; color: #999; }
-        .nav-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #667eea, #764ba2); border: none; border-radius: 12px; color: white; font-size: 16px; font-weight: 600; cursor: pointer; }
-        .nav-btn:disabled { background: #ccc; cursor: not-allowed; }
-        .toast { position: absolute; top: 100px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 20px; font-size: 13px; z-index: 20; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
-        .toast.show { opacity: 1; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, sans-serif; overflow: hidden; }
+        .home { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; background: #000; }
+        .gallery-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; }
+        .btn-quiet { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 160px; height: 160px; border-radius: 50%; background: transparent; border: 1px solid rgba(255,255,255,0.4); color: white; font-size: 22px; letter-spacing: 8px; cursor: pointer; }
+        .map-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; }
+        .map-page.active { display: block; }
+        #gaodeMap { width: 100%; height: 100%; }
+        .back-btn { position: absolute; top: 50px; left: 16px; z-index: 100; width: 40px; height: 40px; background: #fff; border: none; border-radius: 50%; font-size: 18px; }
     </style>
 </head>
 <body>
     <div class="home" id="home">
         <div class="gallery-bg" id="galleryBg"></div>
-        <div class="overlay"></div>
-        <div class="content">
-            <button class="btn-quiet" onclick="enterMap()"><span class="line1">我想</span><span class="line2">静静</span></button>
-            <div class="artwork-info" id="artworkInfo"><div class="artwork-title" id="artworkTitle"></div><div class="artwork-artist" id="artworkArtist"></div></div>
-        </div>
+        <button class="btn-quiet" onclick="enterMap()">我想<br>静静</button>
     </div>
 
     <div class="map-page" id="mapPage">
-        <div class="map-header"><button class="back-btn" onclick="backHome()">←</button></div>
-        <div class="toast" id="toast"></div>
+        <button class="back-btn" onclick="backHome()">←</button>
         <div id="gaodeMap"></div>
-        <div class="bottom-card">
-            <div class="card-handle"></div>
-            <div class="legend">
-                <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div><span>极少</span></div>
-                <div class="legend-item"><div class="legend-dot" style="background:#fbbf24"></div><span>中等</span></div>
-                <div class="legend-item"><div class="legend-dot" style="background:#f97316"></div><span>较多</span></div>
-                <div class="legend-item"><div class="legend-dot" style="background:#dc2626"></div><span>拥挤</span></div>
-            </div>
-            <div class="route-info" id="routeInfo" style="display:none;">
-                <div class="route-icon">🚶</div>
-                <div class="route-details"><div class="route-dest" id="routeDest"></div><div class="route-meta" id="routeMeta"></div></div>
-                <div class="route-time"><div class="time-val" id="timeVal"></div><div class="time-unit">分钟</div></div>
-            </div>
-            <div class="route-info" id="defaultInfo">
-                <div class="route-icon" style="background:#f0f0f0; color:#999;">📍</div>
-                <div class="route-details"><div class="route-dest" style="color:#999;">选择目的地</div><div class="route-meta">点击地图或红色标记</div></div>
-            </div>
-            <button class="nav-btn" id="navBtn" onclick="startNav()" disabled>开始步行导航</button>
-        </div>
     </div>
 
-    <script src="artworks.js"></script>
     <script>
-        // 确保 artworks.js 加载成功
-        if (typeof window.shuffledArtworks === 'undefined' || !window.shuffledArtworks || window.shuffledArtworks.length < 10) {
-            console.error('artworks.js 加载失败或数量不足，使用内嵌素材');
-            // 创建完整的50张素材
-            window.shuffledArtworks = [
-                // 10张文字
-                { type: "text", title: "我想", artist: "一个人静静", text: "我想\n一个人\n静静" },
-                { type: "text", title: "此刻", artist: "世界与我无关", text: "此刻\n世界与我\n无关" },
-                { type: "text", title: "别吵", artist: "让我待会儿", text: "别吵\n让我\n待会儿" },
-                { type: "text", title: "安静", artist: "是一种奢侈", text: "安静\n是一种\n奢侈" },
-                { type: "text", title: "独处", artist: "不是孤独", text: "独处\n不是\n孤独" },
-                { type: "text", title: "深夜", artist: "适合发呆", text: "深夜\n适合\n发呆" },
-                { type: "text", title: "耳机", artist: "是我的保护罩", text: "耳机\n是我的\n保护罩" },
-                { type: "text", title: "角落", artist: "最安全", text: "角落\n最\n安全" },
-                { type: "text", title: "沉默", artist: "是最好的回答", text: "沉默\n是最好的\n回答" },
-                { type: "text", title: "消失", artist: "一会儿就好", text: "消失\n一会儿\n就好" },
-                // 40张画作
-                { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Nighthawks_by_Edward_Hopper_1942.jpg/1200px-Nighthawks_by_Edward_Hopper_1942.jpg" },
-                { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Morning_Sun_by_Edward_Hopper.jpg/800px-Morning_Sun_by_Edward_Hopper.jpg" },
-                { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Automat_by_Edward_Hopper.jpg/800px-Automat_by_Edward_Hopper.jpg" },
-                { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Room_in_New_York_by_Edward_Hopper.jpg/800px-Room_in_New_York_by_Edward_Hopper.jpg" },
-                { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Summer_Evening_by_Edward_Hopper.jpg/800px-Summer_Evening_by_Edward_Hopper.jpg" },
-                { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1200px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg" },
-                { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Vincent_van_Gogh_-_Almond_blossom_-_Google_Art_Project.jpg/1200px-Vincent_van_Gogh_-_Almond_blossom_-_Google_Art_Project.jpg" },
-                { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Munch_The_Scream.jpg/800px-Munch_The_Scream.jpg" },
-                { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/The_Kiss_-_Gustav_Klimt_-_Google_Cultural_Institute.jpg/800px-The_Kiss_-_Gustav_Klimt_-_Google_Cultural_Institute.jpg" },
-                { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/The_Great_Wave_off_Kanagawa.jpg/1200px-The_Great_Wave_off_Kanagawa.jpg" }
-            ];
+        var artworks = [
+            { type: "text", text: "我想\n一个人\n静静" },
+            { type: "text", text: "此刻\n世界与我\n无关" },
+            { type: "text", text: "别吵\n让我\n待会儿" },
+            { type: "text", text: "安静\n是一种\n奢侈" },
+            { type: "text", text: "独处\n不是\n孤独" },
+            { type: "text", text: "深夜\n适合\n发呆" },
+            { type: "text", text: "耳机\n是我的\n保护罩" },
+            { type: "text", text: "角落\n最\n安全" },
+            { type: "text", text: "沉默\n是最好的\n回答" },
+            { type: "text", text: "消失\n一会儿\n就好" },
+            { type: "img", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Nighthawks_by_Edward_Hopper_1942.jpg/1200px-Nighthawks_by_Edward_Hopper_1942.jpg" },
+            { type: "img", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Morning_Sun_by_Edward_Hopper.jpg/800px-Morning_Sun_by_Edward_Hopper.jpg" },
+            { type: "img", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1200px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg" },
+            { type: "img", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Munch_The_Scream.jpg/800px-Munch_The_Scream.jpg" },
+            { type: "img", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/The_Kiss_-_Gustav_Klimt_-_Google_Cultural_Institute.jpg/800px-The_Kiss_-_Gustav_Klimt_-_Google_Cultural_Institute.jpg" },
+            { type: "img", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/The_Great_Wave_off_Kanagawa.jpg/1200px-The_Great_Wave_off_Kanagawa.jpg" },
+            { type: "img", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Vermeer_View_of_Delft.jpg/1200px-Vermeer_View_of_Delft.jpg" },
+            { type: "img", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Vincent_van_Gogh_-_Almond_blossom_-_Google_Art_Project.jpg/1200px-Vincent_van_Gogh_-_Almond_blossom_-_Google_Art_Project.jpg" },
+            { type: "img", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/The_Sleeping_Gypsy_by_Henri_Rousseau.jpg/1200px-The_Sleeping_Gypsy_by_Henri_Rousseau.jpg" },
+            { type: "img", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Caspar_David_Friedrich_-_Wanderer_above_the_Sea_of_Fog_-_Google_Art_Project.jpg/800px-Caspar_David_Friedrich_-_Wanderer_above_the_Sea_of_Fog_-_Google_Art_Project.jpg" }
+        ];
+
+        var current = 0, timer, map;
+        var bg = document.getElementById('galleryBg');
+
+        function show(i) {
+            var item = artworks[i];
+            if (item.type === 'text') {
+                bg.style.background = '#0a0a0a';
+                bg.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:white;font-size:36px;text-align:center;white-space:pre;line-height:1.5;">' + item.text + '</div>';
+            } else {
+                bg.innerHTML = '';
+                bg.style.background = 'url(' + item.url + ') center/cover';
+            }
         }
-        
-        let currentIdx = 0, galleryTimer, map = null, userPos = null, route = null, dest = null, lastIdx = -1;
+
+        function next() {
+            current = (current + 1) % artworks.length;
+            show(current);
+        }
 
         function initGallery() {
-            console.log('初始化画廊，素材数量:', window.shuffledArtworks.length);
-            currentIdx = Math.floor(Math.random() * window.shuffledArtworks.length);
-            lastIdx = currentIdx;
-            showArtwork(currentIdx);
-            galleryTimer = setInterval(nextArtwork, 3000);
-        }
-
-        function nextArtwork() {
-            const bg = document.getElementById('galleryBg');
-            bg.classList.add('fade');
-            setTimeout(function() {
-                let nextIdx;
-                do { 
-                    nextIdx = Math.floor(Math.random() * window.shuffledArtworks.length); 
-                } while (nextIdx === lastIdx && window.shuffledArtworks.length > 1);
-                currentIdx = nextIdx; 
-                lastIdx = nextIdx;
-                showArtwork(currentIdx);
-                bg.classList.remove('fade');
-            }, 500);
-        }
-
-        function showArtwork(idx) {
-            const bg = document.getElementById('galleryBg');
-            const item = window.shuffledArtworks ? window.shuffledArtworks[idx] : null;
-            if (!item) {
-                console.error('素材加载失败，使用默认');
-                bg.style.backgroundColor = '#0a0a0a';
-                return;
-            }
-            
-            document.querySelector('.text-overlay')?.remove();
-            document.getElementById('artworkTitle').textContent = item.type === 'text' ? item.title : '';
-            document.getElementById('artworkArtist').textContent = item.type === 'text' ? item.artist : '';
-            
-            if (item.type === 'text') {
-                bg.style.backgroundImage = ''; 
-                bg.style.backgroundColor = '#0a0a0a';
-                const overlay = document.createElement('div'); 
-                overlay.className = 'text-overlay';
-                overlay.innerHTML = '<div class="text-content">' + item.text.replace(/\n/g, '<br>') + '</div>';
-                bg.parentNode.insertBefore(overlay, bg.nextSibling);
-            } else {
-                // 画作 - 使用更兼容的方式
-                bg.style.backgroundImage = 'url(' + item.url + ')'; 
-                bg.style.backgroundColor = '#1a1a1a';
-            }
+            show(0);
+            timer = setInterval(next, 3000);
         }
 
         function enterMap() {
-            clearInterval(galleryTimer);
-            document.getElementById('home').classList.add('fade-out');
-            setTimeout(() => { document.getElementById('mapPage').classList.add('active'); initMap(); }, 400);
+            clearInterval(timer);
+            document.getElementById('home').style.display = 'none';
+            document.getElementById('mapPage').classList.add('active');
+            initMap();
         }
 
         function backHome() {
             document.getElementById('mapPage').classList.remove('active');
-            document.getElementById('home').classList.remove('fade-out');
-            galleryTimer = setInterval(nextArtwork, 3000);
+            document.getElementById('home').style.display = 'block';
+            timer = setInterval(next, 3000);
         }
 
         function initMap() {
-            console.log('初始化地图...');
-            
-            const mapDiv = document.getElementById('gaodeMap');
-            if (!mapDiv) {
-                console.error('地图容器不存在');
-                return;
-            }
-            
-            // 检查高德API
             if (typeof AMap === 'undefined') {
-                console.error('高德API未加载');
-                mapDiv.innerHTML = '<div style="width:100%;height:100%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#666;font-size:14px;">地图服务加载失败</div>';
+                document.getElementById('gaodeMap').innerHTML = '<div style="padding:100px;text-align:center;">地图加载失败</div>';
                 return;
             }
             
-            // 加载高德定位插件
-            AMap.plugin(['AMap.Geolocation'], function() {
-                const geolocation = new AMap.Geolocation({
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    buttonPosition: 'RB',
-                    zoomToAccuracy: true
+            var center = [113.2644, 23.1291];
+            map = new AMap.Map('gaodeMap', { zoom: 15, center: center });
+            
+            new AMap.Marker({ position: center, map: map, title: '我的位置' });
+            
+            var places = [
+                { name: "街角公园", pos: [center[0] + 0.003, center[1] + 0.002] },
+                { name: "小巷咖啡", pos: [center[0] - 0.002, center[1] + 0.003] },
+                { name: "河边长椅", pos: [center[0] + 0.001, center[1] - 0.003] },
+                { name: "老书店", pos: [center[0] - 0.003, center[1] - 0.001] }
+            ];
+            
+            for (var i = 0; i < places.length; i++) {
+                var m = new AMap.Marker({
+                    position: places[i].pos,
+                    map: map,
+                    title: places[i].name,
+                    label: { content: places[i].name, offset: new AMap.Pixel(0, -25) }
                 });
-                
-                geolocation.getCurrentPosition(function(status, result) {
-                    if (status === 'complete') {
-                        // 定位成功
-                        const lng = result.position.getLng();
-                        const lat = result.position.getLat();
-                        console.log('定位成功:', lng, lat);
-                        createMap([lng, lat]);
-                    } else {
-                        // 定位失败，使用默认位置
-                        console.log('定位失败，使用默认位置');
-                        createMap([113.2644, 23.1291]);
-                    }
-                });
-            });
-        }
-        
-        function createMap(center) {
-            var mapDiv = document.getElementById('gaodeMap');
-            
-            // 清空容器
-            mapDiv.innerHTML = '';
-            
-            // 创建地图
-            map = new AMap.Map('gaodeMap', { 
-                zoom: 15, 
-                center: center,
-                mapStyle: 'amap://styles/dark'
-            });
-            
-            // 添加用户位置标记
-            var marker = new AMap.Marker({ 
-                position: center, 
-                title: '我的位置',
-                icon: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_b.png'
-            });
-            marker.setMap(map);
-            
-            // 加载热力图插件
-            AMap.plugin(['AMap.HeatMap', 'AMap.Walking'], function() {
-                // 添加热力图
-                var heatData = [];
-                for (var i = 0; i < 80; i++) {
-                    var ox = (Math.random() - 0.5) * 0.015;
-                    var oy = (Math.random() - 0.5) * 0.015;
-                    var dist = Math.sqrt(ox*ox + oy*oy);
-                    var count = Math.max(1, Math.floor((0.008 - dist) * 800));
-                    heatData.push({ lng: center[0] + ox, lat: center[1] + oy, count: count });
-                }
-                
-                var heatmap = new AMap.HeatMap(map, { 
-                    radius: 40, 
-                    opacity: [0.3, 0.85], 
-                    gradient: { 0: '#3b82f6', 0.3: '#60a5fa', 0.5: '#fbbf24', 0.7: '#f97316', 1: '#dc2626' } 
-                });
-                heatmap.setDataSet({ data: heatData, max: 60 });
-                
-                // 添加8个虚拟安静地点（带标签）
-                var places = [
-                    { name: "街角公园", pos: [center[0] + 0.003, center[1] + 0.002] },
-                    { name: "小巷咖啡", pos: [center[0] - 0.002, center[1] + 0.003] },
-                    { name: "河边长椅", pos: [center[0] + 0.001, center[1] - 0.003] },
-                    { name: "老书店", pos: [center[0] - 0.003, center[1] - 0.001] },
-                    { name: "安静角落", pos: [center[0] + 0.0025, center[1] + 0.0015] },
-                    { name: "树荫下", pos: [center[0] - 0.0015, center[1] - 0.0025] },
-                    { name: "天台花园", pos: [center[0] + 0.001, center[1] + 0.0025] },
-                    { name: "隐秘庭院", pos: [center[0] - 0.0025, center[1] + 0.001] }
-                ];
-                
-                for (var i = 0; i < places.length; i++) {
-                    (function(place) {
-                        // 创建带标签的标记
-                        var marker = new AMap.Marker({ 
-                            position: place.pos,
-                            title: place.name,
-                            icon: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_r.png',
-                            label: {
-                                content: place.name,
-                                offset: new AMap.Pixel(0, -25),
-                                direction: 'center'
-                            }
-                        });
-                        marker.setMap(map);
-                        
-                        // 点击事件
-                        AMap.event.addListener(marker, 'click', function() {
-                            console.log('点击了地点:', place.name);
-                            planRoute(center, place.pos, place.name);
-                        });
-                    })(places[i]);
-                }
-                
-                // 点击地图任意位置
-                map.on('click', function(e) {
-                    console.log('地图点击:', e.lnglat.getLng(), e.lnglat.getLat());
-                    var pos = [e.lnglat.getLng(), e.lnglat.getLat()];
-                    var dist = getDist(center[1], center[0], pos[1], pos[0]);
-                    var walkTime = dist / 5 * 60;
-                    console.log('距离:', dist, '步行时间:', walkTime);
-                    if (walkTime <= 10) {
-                        planRoute(center, pos, '选定地点');
-                    } else {
-                        showToast('超过10分钟步行范围');
-                    }
-                });
-            });
-            
-            setTimeout(function() { showToast('点击地图选择目的地'); }, 1000);
-        }
-
-        function getDist(lat1, lng1, lat2, lng2) {
-            const R = 6371, dLat = (lat2 - lat1) * Math.PI / 180, dLng = (lng2 - lng1) * Math.PI / 180;
-            const a = Math.sin(dLat/2)**2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng/2)**2;
-            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        }
-
-        function planRoute(start, end, name) {
-            if (route) route.clear();
-            dest = { end: end, name: name };
-            route = new AMap.Walking({ map: map, panel: false });
-            route.search(start, end, function(status, result) {
-                if (status === 'complete') {
-                    var r = result.routes[0];
-                    var time = Math.round(r.time / 60);
-                    document.getElementById('defaultInfo').style.display = 'none';
-                    document.getElementById('routeInfo').style.display = 'flex';
-                    document.getElementById('routeDest').textContent = name;
-                    document.getElementById('routeMeta').textContent = '约 ' + r.distance + ' 米';
-                    document.getElementById('timeVal').textContent = time;
-                    var btn = document.getElementById('navBtn');
-                    btn.disabled = time > 10;
-                    btn.textContent = time > 10 ? '超过10分钟范围' : '开始步行导航';
-                }
-            });
-        }
-
-        function startNav() {
-            if (dest) {
-                var url = 'https://uri.amap.com/navigation?to=' + dest.end[0] + ',' + dest.end[1] + ',' + encodeURIComponent(dest.name) + '&mode=walk&coordinate=gaode';
-                window.location.href = url;
             }
-        }
-
-        function showToast(msg) {
-            var t = document.getElementById('toast');
-            t.textContent = msg;
-            t.classList.add('show');
-            setTimeout(function() { t.classList.remove('show'); }, 3000);
         }
 
         initGallery();
