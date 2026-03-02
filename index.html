@@ -151,7 +151,7 @@
         function initGallery() {
             const bg = document.getElementById('galleryBg'), indicators = document.getElementById('indicators');
             artworks.forEach((_, i) => { const dot = document.createElement('div'); dot.className = 'indicator' + (i === 0 ? ' active' : ''); indicators.appendChild(dot); });
-            bg.style.backgroundImage = `url(${artworks[0].url})`; updateArtworkInfo(0); galleryInterval = setInterval(nextArtwork, 5000);
+            bg.style.backgroundImage = `url(${artworks[0].url})`; updateArtworkInfo(0); galleryInterval = setInterval(nextArtwork, 4000);
         }
 
         function nextArtwork() {
