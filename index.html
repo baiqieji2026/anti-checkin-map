@@ -99,7 +99,16 @@
         }
 
         function startGallery() {
-            showItem(0);
+            // 找到第一张图片的索引
+            var firstImgIdx = 0;
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].type === 'img') {
+                    firstImgIdx = i;
+                    break;
+                }
+            }
+            idx = firstImgIdx;
+            showItem(idx);
             timer = setInterval(nextItem, 3000);
         }
 
