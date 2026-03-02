@@ -83,6 +83,16 @@
 
     <script src="artworks.js"></script>
     <script>
+        // 检查artworks.js是否加载成功
+        if (typeof shuffledArtworks === 'undefined') {
+            console.error('artworks.js 加载失败');
+            // 创建默认素材
+            const shuffledArtworks = [
+                { type: "text", title: "我想", artist: "一个人静静", text: "我想\n一个人\n静静" },
+                { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Nighthawks_by_Edward_Hopper_1942.jpg/1200px-Nighthawks_by_Edward_Hopper_1942.jpg" }
+            ];
+        }
+        
         let currentIdx = 0, galleryTimer, map = null, userPos = null, route = null, dest = null, lastIdx = -1;
 
         function initGallery() {
@@ -146,54 +156,70 @@
         function initMap() {
             console.log('初始化地图...');
             
-            // 检查高德API
-            if (typeof AMap === 'undefined') {
-                console.error('高德API未加载');
-                showToast('地图服务暂时不可用');
-                // 使用默认位置创建简单地图
-                setTimeout(() => createFallbackMap([113.2644, 23.1291]), 500);
+            const mapDiv = document.getElementById('gaodeMap');
+            if (!mapDiv) {
+                console.error('地图容器不存在');
                 return;
             }
             
-            // 加载插件
-            AMap.plugin(['AMap.Geolocation', 'AMap.HeatMap', 'AMap.Walking'], () => {
-                console.log('插件加载完成');
-                const geo = new AMap.Geolocation({ 
-                    enableHighAccuracy: true, 
-                    timeout: 10000, 
-                    zoomToAccuracy: true,
-                    showButton: true
-                });
-                
-                geo.getCurrentPosition((status, result) => {
-                    console.log('定位结果:', status, result);
-                    if (status === 'complete' && result.position) {
-                        userPos = [result.position.getLng(), result.position.getLat()];
-                        console.log('定位成功:', userPos);
-                        createMap(userPos);
-                    } else {
-                        console.log('定位失败，使用默认位置');
-                        userPos = [113.2644, 23.1291];
-                        showToast('定位失败，使用默认位置');
-                        createMap(userPos);
-                    }
-                });
-            });
+            // 检查高德API
+            if (typeof AMap === 'undefined') {
+                console.error('高德API未加载');
+                mapDiv.innerHTML = '<div style="width:100%;height:100%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#666;">地图加载失败</div>';
+                return;
+            }
+            
+            // 直接使用默认位置创建地图（避免定位问题）
+            const defaultPos = [113.2644, 23.1291];
+            createMap(defaultPos);
         }
         
-        // 备选地图（当高德API受限时）
-        function createFallbackMap(center) {
-            const mapDiv = document.getElementById('gaodeMap');
-            mapDiv.innerHTML = `
-                <div style="width:100%;height:100%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#666;text-align:center;padding:20px;">
-                    <div>
-                        <div style="font-size:48px;margin-bottom:16px;">🗺️</div>
-                        <div style="font-size:16px;margin-bottom:8px;">地图服务暂时不可用</div>
-                        <div style="font-size:13px;color:#999;">请检查定位权限或稍后重试</div>
-                        <div style="margin-top:20px;font-size:12px;color:#444;">默认位置: 广州</div>
-                    </div>
-                </div>
-            `;
+        function createMap(center) {
+            try {
+                map = new AMap.Map('gaodeMap', { 
+                    zoom: 15, 
+                    center: center, 
+                    mapStyle: 'amap://styles/dark'
+                });
+                
+                // 添加用户位置标记
+                new AMap.Marker({ 
+                    position: center, 
+                    map: map, 
+                    icon: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_b.png',
+                    title: '我的位置'
+                });
+                
+                // 添加4个安静地点
+                const places = [
+                    { name: "街角公园", pos: [center[0] + 0.003, center[1] + 0.002] },
+                    { name: "小巷咖啡", pos: [center[0] - 0.002, center[1] + 0.003] },
+                    { name: "河边长椅", pos: [center[0] + 0.001, center[1] - 0.003] },
+                    { name: "老书店", pos: [center[0] - 0.003, center[1] - 0.001] }
+                ];
+                
+                places.forEach(p => {
+                    const marker = new AMap.Marker({ 
+                        position: p.pos, 
+                        map: map, 
+                        icon: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_r.png',
+                        title: p.name
+                    });
+                    marker.on('click', () => {
+                        alert('点击了: ' + p.name);
+                    });
+                });
+                
+                // 点击地图
+                map.on('click', e => {
+                    alert('地图点击: ' + e.lnglat.getLng() + ', ' + e.lnglat.getLat());
+                });
+                
+                console.log('地图创建成功');
+            } catch (err) {
+                console.error('地图创建失败:', err);
+                document.getElementById('gaodeMap').innerHTML = '<div style="width:100%;height:100%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#666;">地图创建失败</div>';
+            }
         }
 
         function createMap(center) {
