@@ -43,22 +43,22 @@ const artworks = [
     { type: "text", title: "不必", artist: "解释", text: "不必\n解释" },
     { type: "text", title: "沉默", artist: "是金", text: "沉默\n是\n金" },
     
-    // ===== 照片 (15张) =====
-    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=800&q=80" },
-    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800&q=80" },
-    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=800&q=80" },
-    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=800&q=80" },
-    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800&q=80" },
-    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1515169067868-5387ec356754?w=800&q=80" },
-    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80" },
-    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80" },
-    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=800&q=80" },
+    // ===== 照片 (15张) - 无人像，纯风景/静物 =====
+    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800&q=80" },
     { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1507400492013-162706c8c05e?w=800&q=80" },
-    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1517816428104-797678c7cf0c?w=800&q=80" },
-    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?w=800&q=80" },
-    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1518655048521-f130df041f66?w=800&q=80" },
-    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80" },
-    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80" },
+    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=800&q=80" },
+    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800&q=80" },
+    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80" },
+    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=800&q=80" },
+    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=800&q=80" },
+    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=800&q=80" },
+    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=800&q=80" },
+    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1505765050516-f72dcac9c60e?w=800&q=80" },
+    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1439853949127-fa647821eba0?w=800&q=80" },
+    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1504198453319-5ce911bafcde?w=800&q=80" },
+    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1518173946687-a4c036bc1d9e?w=800&q=80" },
+    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1504608524841-42fe6f032b4b?w=800&q=80" },
+    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=800&q=80" },
 ];
 
 // 随机打乱数组
