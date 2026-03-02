@@ -82,14 +82,54 @@
         .map-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; transform: scale(0.95); transition: opacity 0.6s ease, transform 0.6s ease; background: #0a0a0a; overflow: hidden; }
         .map-page.active { opacity: 1; transform: scale(1); }
         
-        .pixel-map { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: grid; grid-template-columns: repeat(16, 1fr); gap: 1px; width: 100%; max-width: 400px; aspect-ratio: 1; padding: 10px; }
-        .pixel-cell { aspect-ratio: 1; }
-        .cell-quiet-5 { background: #1e3a8a; }
-        .cell-quiet-4 { background: #3b82f6; }
-        .cell-quiet-3 { background: #059669; }
-        .cell-quiet-2 { background: #d97706; }
-        .cell-quiet-1 { background: #dc2626; }
-        .cell-empty { background: #1a1a2e; }
+        /* Game Boy 风格地图 */
+        .gb-map-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #0f380f;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 
+                0 0 0 4px #306230,
+                0 0 0 8px #0f380f,
+                0 10px 30px rgba(0,0,0,0.5);
+        }
+        
+        .pixel-map { 
+            display: grid; 
+            grid-template-columns: repeat(20, 1fr); 
+            gap: 0; 
+            width: 320px; 
+            height: 320px;
+            background: #0f380f;
+            image-rendering: pixelated;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.3);
+        }
+        
+        .pixel-cell { 
+            width: 16px; 
+            height: 16px; 
+            image-rendering: pixelated;
+        }
+        
+        /* Game Boy 风格调色板 - 深色版 */
+        .cell-quiet-5 { background: #8bac0f; } /* 最浅绿 - 人最少 */
+        .cell-quiet-4 { background: #306230; } /* 中绿 - 安静 */
+        .cell-quiet-3 { background: #0f380f; } /* 深绿 - 中等 */
+        .cell-quiet-2 { background: #1a1a2e; } /* 暗色 - 热闹 */
+        .cell-quiet-1 { background: #000000; } /* 黑色 - 避开 */
+        .cell-empty { background: #0f380f; }    /* 背景绿 */
+        
+        /* 像素边框效果 */
+        .pixel-cell::after {
+            content: '';
+            display: block;
+            width: 100%;
+            height: 100%;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
         
         .user-marker { position: absolute; width: 14px; height: 14px; background: #fff; border: 2px solid #3b82f6; border-radius: 50%; z-index: 20; animation: pulse 2s infinite; }
         @keyframes pulse { 0%, 100% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.1); } }
@@ -131,7 +171,9 @@
     <!-- 地图页 -->
     <div class="map-page" id="mapPage">
         <button class="back-btn" onclick="backHome()">← 返回</button>
-        <div class="pixel-map" id="pixelMap"></div>
+        <div class="gb-map-container">
+            <div class="pixel-map" id="pixelMap"></div>
+        </div>
         <div class="user-marker" id="userMarker" style="display:none; left:50%; top:50%;"></div>
         
         <div class="legend">
@@ -287,47 +329,67 @@
             
             grid.innerHTML = '';
             
-            // 16x16 像素网格
-            for (let i = 0; i < 256; i++) {
+            // 20x20 = 400个像素格子（Game Boy风格）
+            for (let i = 0; i < 400; i++) {
                 const cell = document.createElement('div');
                 cell.className = 'pixel-cell';
-                const row = Math.floor(i / 16);
-                const col = i % 16;
                 
+                const row = Math.floor(i / 20);
+                const col = i % 20;
+                
+                // 计算这个格子与各个地点的距离
                 let minDist = Infinity;
                 let nearestQuiet = 1;
                 
                 nearby.forEach(p => {
-                    const pRow = 8 + Math.floor((p.lat - userLocation.lat) * 300);
-                    const pCol = 8 + Math.floor((p.lng - userLocation.lng) * 300);
+                    const pRow = 10 + Math.floor((p.lat - userLocation.lat) * 400);
+                    const pCol = 10 + Math.floor((p.lng - userLocation.lng) * 400);
                     const d = Math.abs(row - pRow) + Math.abs(col - pCol);
-                    if (d < minDist) { minDist = d; nearestQuiet = p.quiet; }
+                    if (d < minDist) {
+                        minDist = d;
+                        nearestQuiet = p.quiet;
+                    }
                 });
                 
+                // 根据距离衰减
                 let quietLevel = nearestQuiet;
                 if (minDist > 2) quietLevel = Math.max(1, quietLevel - 1);
                 if (minDist > 5) quietLevel = Math.max(1, quietLevel - 1);
                 
-                const distToCenter = Math.abs(row - 8) + Math.abs(col - 8);
-                if (distToCenter <= 1) cell.classList.add('cell-empty');
-                else if (nearby.length === 0 || minDist > 8) cell.classList.add('cell-empty');
-                else cell.classList.add(`cell-quiet-${quietLevel}`);
+                // 中心区域（用户位置）周围是空的
+                const centerRow = 10;
+                const centerCol = 10;
+                const distToCenter = Math.abs(row - centerRow) + Math.abs(col - centerCol);
+                
+                if (distToCenter <= 1) {
+                    cell.classList.add('cell-empty');
+                } else if (nearbyPlaces.length === 0 || minDist > 8) {
+                    cell.classList.add('cell-empty');
+                } else {
+                    cell.classList.add(`cell-quiet-${quietLevel}`);
+                }
                 
                 grid.appendChild(cell);
             }
             
-            document.getElementById('userMarker').style.display = 'block';
+            // 用户位置标记（中心）- Game Boy风格
+            const userMarker = document.createElement('div');
+            userMarker.style.cssText = 'position:absolute;width:12px;height:12px;background:#9bbc0f;border:2px solid #0f380f;z-index:20;left:50%;top:50%;transform:translate(-50%,-50%);image-rendering:pixelated;box-shadow:0 0 0 2px #8bac0f;';
+            grid.appendChild(userMarker);
             
             nearby.forEach(p => {
                 const marker = document.createElement('div');
                 marker.style.cssText = `position:absolute;transform:translate(-50%,-50%);z-index:15;cursor:pointer;`;
-                const offsetY = (userLocation.lat - p.lat) * 5000;
-                const offsetX = (p.lng - userLocation.lng) * 5000;
+                const offsetY = (userLocation.lat - p.lat) * 8000;
+                const offsetX = (p.lng - userLocation.lng) * 8000;
                 marker.style.left = `calc(50% + ${offsetX}px)`;
                 marker.style.top = `calc(50% + ${offsetY}px)`;
-                const colors = { 5: '#1e3a8a', 4: '#3b82f6', 3: '#059669' };
-                marker.innerHTML = `<div style="width:12px;height:12px;background:${colors[p.quiet]};border-radius:50%;border:2px solid #fff;"></div>
-                    <div style="position:absolute;top:14px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:10px;color:#fff;background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:4px;">${p.walkTime}分</div>`;
+                // Game Boy风格颜色
+                const colors = { 5: '#9bbc0f', 4: '#8bac0f' };
+                marker.innerHTML = `<div style="width:10px;height:10px;background:${colors[p.quiet]};border:2px solid #0f380f;image-rendering:pixelated;"
+                    ></div>
+                    <div style="position:absolute;top:12px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:9px;color:#9bbc0f;background:#0f380f;padding:2px 4px;image-rendering:pixelated;"
+                    >${p.walkTime}分</div>`;
                 marker.onclick = () => showPlace(p);
                 grid.appendChild(marker);
             });
