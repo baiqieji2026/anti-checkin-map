@@ -16,8 +16,8 @@
         #galleryBg.fade { opacity: 0; }
         .text-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 32px; font-weight: 200; letter-spacing: 8px; line-height: 1.8; text-align: center; white-space: pre; }
         
-        .btn-wrap { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 20; }
-        .btn-quiet { width: 160px; height: 160px; border-radius: 50%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.4); color: #fff; font-size: 22px; font-weight: 200; letter-spacing: 8px; line-height: 1.5; cursor: pointer; animation: breathe 4s ease-in-out infinite; }
+        .btn-wrap { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 100; pointer-events: none; }
+        .btn-quiet { pointer-events: auto; width: 160px; height: 160px; border-radius: 50%; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.5); color: #fff; font-size: 22px; font-weight: 200; letter-spacing: 8px; line-height: 1.5; cursor: pointer; animation: breathe 4s ease-in-out infinite; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
         @keyframes breathe { 0%, 100% { box-shadow: 0 0 20px rgba(255,255,255,0.1); } 50% { box-shadow: 0 0 40px rgba(255,255,255,0.2); } }
         
         /* 地图页 */
@@ -153,9 +153,10 @@
             bg.className='fade';
             setTimeout(function(){
                 var ni;
-                do{ni=Math.floor(Math.random()*artworks.length);}while(ni===lastIdx&&artworks.length>1);
+                do{ni=Math.floor(Math.random()*artworks.length);}while(ni===lastIdx && artworks.length>1);
                 cur=ni;lastIdx=ni;
                 show(cur);
+                bg.className='';
             },500);
         }
         
@@ -279,22 +280,27 @@
             if(route){route.clear();}
             dest={e:e,n:n};
             
-            AMap.plugin(['AMap.Walking'],function(){
+            try{
                 route=new AMap.Walking({map:map,panel:false});
                 route.search(s,e,function(status,result){
                     if(status==='complete'){
                         var r=result.routes[0];
                         var t=Math.round(r.time/60);
-                        document.getElementById('routeInfo').className='route-info show';
+                        document.getElementById('routeInfo').style.display='flex';
                         document.getElementById('routeDest').textContent=n;
                         document.getElementById('routeMeta').textContent='约 '+r.distance+' 米';
                         document.getElementById('routeTime').textContent=t;
                         var b=document.getElementById('navBtn');
-                        b.disabled=t>10;
-                        b.textContent=t>10?'超过10分钟范围':'开始步行导航';
+                        b.disabled=false;
+                        b.textContent='开始步行导航 ('+t+'分钟)';
+                    }else{
+                        showToast('路线规划失败');
                     }
                 });
-            });
+            }catch(err){
+                console.error('路线规划错误:',err);
+                showToast('路线规划功能暂不可用');
+            }
         }
         
         function startNav(){
