@@ -203,79 +203,75 @@
             // 清空容器
             mapDiv.innerHTML = '';
             
-            // 创建地图 - 使用更兼容的写法
+            // 创建地图
             map = new AMap.Map('gaodeMap', { 
                 zoom: 15, 
-                center: center
+                center: center,
+                mapStyle: 'amap://styles/dark'
             });
             
-            // 添加标记
+            // 添加用户位置标记
             var marker = new AMap.Marker({ 
                 position: center, 
-                title: '我的位置'
+                title: '我的位置',
+                icon: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_b.png'
             });
             marker.setMap(map);
             
-            // 添加4个安静地点
-            var places = [
-                { name: "街角公园", pos: [center[0] + 0.003, center[1] + 0.002] },
-                { name: "小巷咖啡", pos: [center[0] - 0.002, center[1] + 0.003] },
-                { name: "河边长椅", pos: [center[0] + 0.001, center[1] - 0.003] },
-                { name: "老书店", pos: [center[0] - 0.003, center[1] - 0.001] }
-            ];
-            
-            for (var i = 0; i < places.length; i++) {
-                (function(place) {
-                    var m = new AMap.Marker({ 
-                        position: place.pos,
-                        title: place.name
-                    });
-                    m.setMap(map);
-                    m.on('click', function() {
-                        alert('点击了: ' + place.name);
-                    });
-                })(places[i]);
-            }
-            
-            // 点击地图
-            map.on('click', function(e) {
-                alert('地图点击: ' + e.lnglat.getLng() + ', ' + e.lnglat.getLat());
+            // 加载热力图插件
+            AMap.plugin(['AMap.HeatMap', 'AMap.Walking'], function() {
+                // 添加热力图
+                var heatData = [];
+                for (var i = 0; i < 80; i++) {
+                    var ox = (Math.random() - 0.5) * 0.015;
+                    var oy = (Math.random() - 0.5) * 0.015;
+                    var dist = Math.sqrt(ox*ox + oy*oy);
+                    var count = Math.max(1, Math.floor((0.008 - dist) * 800));
+                    heatData.push({ lng: center[0] + ox, lat: center[1] + oy, count: count });
+                }
+                
+                var heatmap = new AMap.HeatMap(map, { 
+                    radius: 40, 
+                    opacity: [0.3, 0.85], 
+                    gradient: { 0: '#3b82f6', 0.3: '#60a5fa', 0.5: '#fbbf24', 0.7: '#f97316', 1: '#dc2626' } 
+                });
+                heatmap.setDataSet({ data: heatData, max: 60 });
+                
+                // 添加4个安静地点
+                var places = [
+                    { name: "街角公园", pos: [center[0] + 0.003, center[1] + 0.002] },
+                    { name: "小巷咖啡", pos: [center[0] - 0.002, center[1] + 0.003] },
+                    { name: "河边长椅", pos: [center[0] + 0.001, center[1] - 0.003] },
+                    { name: "老书店", pos: [center[0] - 0.003, center[1] - 0.001] }
+                ];
+                
+                for (var i = 0; i < places.length; i++) {
+                    (function(place) {
+                        var m = new AMap.Marker({ 
+                            position: place.pos,
+                            title: place.name,
+                            icon: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_r.png'
+                        });
+                        m.setMap(map);
+                        m.on('click', function() {
+                            planRoute(center, place.pos, place.name);
+                        });
+                    })(places[i]);
+                }
+                
+                // 点击地图
+                map.on('click', function(e) {
+                    var pos = [e.lnglat.getLng(), e.lnglat.getLat()];
+                    var dist = getDist(center[1], center[0], pos[1], pos[0]);
+                    if (dist / 5 * 60 <= 10) {
+                        planRoute(center, pos, '选定地点');
+                    } else {
+                        showToast('超过10分钟步行范围');
+                    }
+                });
             });
             
-            console.log('地图创建成功');
-        }
-
-        function createMap(center) {
-            map = new AMap.Map('gaodeMap', { zoom: 15, center: center, mapStyle: 'amap://styles/dark' });
-            new AMap.Marker({ position: center, map: map, icon: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_b.png' });
-            
-            const places = [
-                { name: "街角公园", pos: [center[0] + 0.003, center[1] + 0.002] },
-                { name: "小巷咖啡", pos: [center[0] - 0.002, center[1] + 0.003] },
-                { name: "河边长椅", pos: [center[0] + 0.001, center[1] - 0.003] },
-                { name: "老书店", pos: [center[0] - 0.003, center[1] - 0.001] }
-            ];
-            
-            places.forEach(p => {
-                const m = new AMap.Marker({ position: p.pos, map: map, icon: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_r.png' });
-                m.on('click', () => planRoute(center, p.pos, p.name));
-            });
-            
-            const heatData = [];
-            for (let i = 0; i < 80; i++) {
-                const ox = (Math.random() - 0.5) * 0.015, oy = (Math.random() - 0.5) * 0.015;
-                heatData.push({ lng: center[0] + ox, lat: center[1] + oy, count: Math.max(1, Math.floor((0.008 - Math.sqrt(ox*ox + oy*oy)) * 800)) });
-            }
-            new AMap.HeatMap(map, { radius: 40, opacity: [0.3, 0.85], gradient: { 0: '#3b82f6', 0.3: '#60a5fa', 0.5: '#fbbf24', 0.7: '#f97316', 1: '#dc2626' } }).setDataSet({ data: heatData, max: 60 });
-            
-            map.on('click', e => {
-                const pos = [e.lnglat.getLng(), e.lnglat.getLat()];
-                const dist = getDist(center[1], center[0], pos[1], pos[0]);
-                if (dist / 5 * 60 <= 10) planRoute(center, pos, '选定地点');
-                else showToast('超过10分钟步行范围');
-            });
-            
-            setTimeout(() => showToast('点击地图选择目的地'), 1000);
+            setTimeout(function() { showToast('点击地图选择目的地'); }, 1000);
         }
 
         function getDist(lat1, lng1, lat2, lng2) {
