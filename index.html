@@ -5,214 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>我想静静</title>
     <script src="https://webapi.amap.com/maps?v=1.4.15&key=f987015a56c3e1f3e64d8364fa9844c4"></script>
-    <script>
-        // 确保高德API加载完成
-        window.onload = function() {
-            if (typeof AMap === 'undefined') {
-                console.error('高德地图API加载失败');
-                return;
-            }
-            // 加载插件
-            AMap.plugin(['AMap.HeatMap', 'AMap.Walking', 'AMap.Geolocation'], function() {
-                console.log('高德插件加载完成');
-            });
-        };
-    </script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, sans-serif; overflow: hidden; }
-        
-        /* 首页 */
         .home { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; transition: opacity 0.8s ease; background: #000; }
         .home.fade-out { opacity: 0; pointer-events: none; }
-        .gallery-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; transition: opacity 1s ease; }
+        .gallery-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; transition: opacity 0.5s ease; }
         .gallery-bg.fade { opacity: 0; }
-        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.8) 100%); }
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); }
         .content { position: relative; z-index: 10; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .artwork-info { position: absolute; bottom: 140px; left: 0; right: 0; text-align: center; padding: 0 20px; opacity: 0.7; }
-        .artwork-title { font-size: 11px; color: rgba(255,255,255,0.6); letter-spacing: 2px; margin-bottom: 4px; }
-        .artwork-artist { font-size: 10px; color: rgba(255,255,255,0.4); }
-        .btn-quiet {
-            width: 160px;
-            height: 160px;
-            border-radius: 50%;
-            background: transparent;
-            border: 1px solid rgba(255,255,255,0.4);
-            color: rgba(255,255,255,0.9);
-            font-family: -apple-system, 'PingFang SC', sans-serif;
-            font-weight: 200;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 2px;
-            animation: breathe 4s ease-in-out infinite;
-            backdrop-filter: blur(4px);
-        }
-        
-        .btn-quiet .line1 {
-            font-size: 22px;
-            letter-spacing: 8px;
-        }
-        
-        .btn-quiet .line2 {
-            font-size: 22px;
-            letter-spacing: 8px;
-        }
-        
-        @keyframes breathe {
-            0%, 100% { box-shadow: 0 0 20px rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); transform: scale(1); }
-            50% { box-shadow: 0 0 40px rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.5); transform: scale(1.02); }
-        }
-        
-        .indicators { display: none; }
-        .indicator { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.2); transition: all 0.3s; }
-        .indicator.active { background: rgba(255,255,255,0.8); transform: scale(1.2); }
-        
-        /* 地图页 - 滴滴风格底部卡片 */
-        .map-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; transform: scale(0.95); transition: opacity 0.6s ease, transform 0.6s ease; overflow: hidden; }
-        .map-page.active { opacity: 1; transform: scale(1); }
+        .btn-quiet { width: 160px; height: 160px; border-radius: 50%; background: transparent; border: 1px solid rgba(255,255,255,0.4); color: rgba(255,255,255,0.9); font-family: -apple-system, 'PingFang SC', sans-serif; font-weight: 200; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; animation: breathe 4s ease-in-out infinite; backdrop-filter: blur(4px); }
+        .btn-quiet .line1, .btn-quiet .line2 { font-size: 22px; letter-spacing: 8px; }
+        @keyframes breathe { 0%, 100% { box-shadow: 0 0 20px rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); transform: scale(1); } 50% { box-shadow: 0 0 40px rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.5); transform: scale(1.02); } }
+        .artwork-info { position: absolute; bottom: 140px; left: 0; right: 0; text-align: center; padding: 0 20px; }
+        .artwork-title { font-size: 14px; color: rgba(255,255,255,0.8); letter-spacing: 4px; margin-bottom: 4px; }
+        .artwork-artist { font-size: 12px; color: rgba(255,255,255,0.5); letter-spacing: 2px; }
+        .text-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; z-index: 5; }
+        .text-content { text-align: center; color: rgba(255,255,255,0.95); font-size: 36px; font-weight: 200; letter-spacing: 12px; line-height: 2; }
+        .map-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; }
+        .map-page.active { opacity: 1; pointer-events: auto; }
         #gaodeMap { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
-        
-        /* 顶部状态栏 */
-        .map-header { 
-            position: absolute; top: 0; left: 0; right: 0; 
-            padding: 50px 16px 20px; 
-            background: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, transparent 100%); 
-            z-index: 50; display: flex; justify-content: space-between; align-items: flex-start; 
-        }
-        .back-btn-simple { 
-            width: 36px; height: 36px; 
-            background: rgba(255,255,255,0.95); 
-            border: none; border-radius: 50%; 
-            color: #333; font-size: 16px; 
-            cursor: pointer; display: flex; align-items: center; justify-content: center; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15); 
-        }
-        
-        /* 底部卡片 - 滴滴风格 */
-        .bottom-card {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: #fff;
-            border-radius: 20px 20px 0 0;
-            padding: 16px 20px 30px;
-            z-index: 10;
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
-            transform: translateY(0);
-            transition: transform 0.3s ease;
-            pointer-events: auto;
-        }
-        
-        .card-handle {
-            width: 40px;
-            height: 4px;
-            background: #e5e5e5;
-            border-radius: 2px;
-            margin: 0 auto 16px;
-        }
-        
-        .route-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-        
-        .route-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 18px;
-        }
-        
-        .route-details {
-            flex: 1;
-        }
-        
-        .route-destination {
-            font-size: 16px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 4px;
-        }
-        
-        .route-meta {
-            font-size: 13px;
-            color: #999;
-        }
-        
-        .route-time {
-            text-align: right;
-        }
-        
-        .time-value {
-            font-size: 24px;
-            font-weight: 700;
-            color: #333;
-        }
-        
-        .time-unit {
-            font-size: 12px;
-            color: #999;
-        }
-        
-        .action-btn {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            border-radius: 12px;
-            color: white;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        
-        .action-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-        
-        /* 地图图例 - 移到卡片内 */
-        .map-legend { 
-            display: flex;
-            gap: 16px;
-            margin-bottom: 16px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #666; }
-        .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
-        
-        /* 提示信息 */
-        .location-toast {
-            position: absolute;
-            top: 100px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 13px;
-            z-index: 60;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        .location-toast.show { opacity: 1; }
+        .map-header { position: absolute; top: 0; left: 0; right: 0; padding: 50px 16px 20px; z-index: 10; }
+        .back-btn { width: 40px; height: 40px; background: #fff; border: none; border-radius: 50%; font-size: 18px; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .bottom-card { position: absolute; bottom: 0; left: 0; right: 0; background: #fff; border-radius: 20px 20px 0 0; padding: 20px; z-index: 10; }
+        .card-handle { width: 40px; height: 4px; background: #ddd; border-radius: 2px; margin: 0 auto 16px; }
+        .legend { display: flex; gap: 12px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #eee; }
+        .legend-item { display: flex; align-items: center; gap: 4px; font-size: 11px; color: #666; }
+        .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .route-info { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+        .route-icon { width: 44px; height: 44px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; }
+        .route-details { flex: 1; }
+        .route-dest { font-size: 16px; font-weight: 600; color: #333; margin-bottom: 2px; }
+        .route-meta { font-size: 13px; color: #999; }
+        .route-time { text-align: right; }
+        .time-val { font-size: 28px; font-weight: 700; color: #333; }
+        .time-unit { font-size: 11px; color: #999; }
+        .nav-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #667eea, #764ba2); border: none; border-radius: 12px; color: white; font-size: 16px; font-weight: 600; cursor: pointer; }
+        .nav-btn:disabled { background: #ccc; cursor: not-allowed; }
+        .toast { position: absolute; top: 100px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 20px; font-size: 13px; z-index: 20; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+        .toast.show { opacity: 1; }
     </style>
 </head>
 <body>
@@ -220,337 +51,165 @@
         <div class="gallery-bg" id="galleryBg"></div>
         <div class="overlay"></div>
         <div class="content">
-            <button class="btn-quiet" onclick="enterMap()">
-                <span class="line1">我想</span>
-                <span class="line2">静静</span>
-            </button>
-            <div class="artwork-info" id="artworkInfo">
-                <div class="artwork-title" id="artworkTitle"></div>
-                <div class="artwork-artist" id="artworkArtist"></div>
-            </div>
-            <div class="indicators" id="indicators"></div>
+            <button class="btn-quiet" onclick="enterMap()"><span class="line1">我想</span><span class="line2">静静</span></button>
+            <div class="artwork-info" id="artworkInfo"><div class="artwork-title" id="artworkTitle"></div><div class="artwork-artist" id="artworkArtist"></div></div>
         </div>
     </div>
 
     <div class="map-page" id="mapPage">
-        <div class="map-header">
-            <button class="back-btn-simple" onclick="backHome()">←</button>
-        </div>
-        
-        <div class="location-toast" id="locationToast">点击地图选择目的地</div>
-        
+        <div class="map-header"><button class="back-btn" onclick="backHome()">←</button></div>
+        <div class="toast" id="toast"></div>
         <div id="gaodeMap"></div>
-        
-        <!-- 底部卡片 - 滴滴风格 -->
         <div class="bottom-card">
             <div class="card-handle"></div>
-            
-            <!-- 热力图图例 -->
-            <div class="map-legend">
+            <div class="legend">
                 <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div><span>极少</span></div>
                 <div class="legend-item"><div class="legend-dot" style="background:#fbbf24"></div><span>中等</span></div>
                 <div class="legend-item"><div class="legend-dot" style="background:#f97316"></div><span>较多</span></div>
                 <div class="legend-item"><div class="legend-dot" style="background:#dc2626"></div><span>拥挤</span></div>
             </div>
-            
-            <!-- 路线信息 -->
             <div class="route-info" id="routeInfo" style="display:none;">
                 <div class="route-icon">🚶</div>
-                <div class="route-details">
-                    <div class="route-destination" id="routeDestination">选定地点</div>
-                    <div class="route-meta" id="routeMeta">约 500 米</div>
-                </div>
-                <div class="route-time">
-                    <div class="time-value" id="timeValue">8</div>
-                    <div class="time-unit">分钟</div>
-                </div>
+                <div class="route-details"><div class="route-dest" id="routeDest"></div><div class="route-meta" id="routeMeta"></div></div>
+                <div class="route-time"><div class="time-val" id="timeVal"></div><div class="time-unit">分钟</div></div>
             </div>
-            
-            <!-- 默认提示 -->
             <div class="route-info" id="defaultInfo">
                 <div class="route-icon" style="background:#f0f0f0; color:#999;">📍</div>
-                <div class="route-details">
-                    <div class="route-destination" style="color:#999;">选择目的地</div>
-                    <div class="route-meta">点击地图或红色标记</div>
-                </div>
+                <div class="route-details"><div class="route-dest" style="color:#999;">选择目的地</div><div class="route-meta">点击地图或红色标记</div></div>
             </div>
-            
-            <!-- 操作按钮 -->
-            <button class="action-btn" id="actionBtn" onclick="startNavigation()" disabled>
-                开始步行导航
-            </button>
+            <button class="nav-btn" id="navBtn" onclick="startNav()" disabled>开始步行导航</button>
         </div>
     </div>
 
     <script src="artworks.js"></script>
     <script>
-        let currentArtwork = 0, galleryInterval, map = null;
-        let lastArtwork = -1; // 记录上一张，防止重复
+        let currentIdx = 0, galleryTimer, map = null, userPos = null, route = null, dest = null, lastIdx = -1;
 
         function initGallery() {
-            const bg = document.getElementById('galleryBg');
-            // 随机选择起始位置
-            currentArtwork = Math.floor(Math.random() * shuffledArtworks.length);
-            lastArtwork = currentArtwork;
-            updateArtworkInfo(currentArtwork);
-            // 3秒切换
-            galleryInterval = setInterval(nextArtwork, 3000);
+            currentIdx = Math.floor(Math.random() * shuffledArtworks.length);
+            lastIdx = currentIdx;
+            showArtwork(currentIdx);
+            galleryTimer = setInterval(nextArtwork, 3000);
         }
 
         function nextArtwork() {
             const bg = document.getElementById('galleryBg');
             bg.classList.add('fade');
             setTimeout(() => {
-                // 随机选择下一张，确保不重复
-                let nextIndex;
-                do {
-                    nextIndex = Math.floor(Math.random() * shuffledArtworks.length);
-                } while (nextIndex === lastArtwork && shuffledArtworks.length > 1);
-                
-                currentArtwork = nextIndex;
-                lastArtwork = nextIndex;
-                updateArtworkInfo(currentArtwork);
+                let nextIdx;
+                do { nextIdx = Math.floor(Math.random() * shuffledArtworks.length); } while (nextIdx === lastIdx);
+                currentIdx = nextIdx; lastIdx = nextIdx;
+                showArtwork(currentIdx);
                 bg.classList.remove('fade');
             }, 500);
         }
 
-        function updateArtworkInfo(index) {
-            const item = shuffledArtworks[index];
-            const titleEl = document.getElementById('artworkTitle');
-            const artistEl = document.getElementById('artworkArtist');
-            const bg = document.getElementById('galleryBg');
-            
-            // 移除之前的文字覆盖层
-            const oldOverlay = document.querySelector('.text-overlay');
-            if (oldOverlay) oldOverlay.remove();
-            
+        function showArtwork(idx) {
+            const item = shuffledArtworks[idx], bg = document.getElementById('galleryBg');
+            document.querySelector('.text-overlay')?.remove();
             if (item.type === 'text') {
-                // 文字类型：显示文字，背景为纯色
-                bg.style.backgroundImage = '';
-                bg.style.backgroundColor = '#0a0a0a';
-                titleEl.textContent = item.title;
-                artistEl.textContent = item.artist;
-                
-                // 添加文字显示
-                const textOverlay = document.createElement('div');
-                textOverlay.className = 'text-overlay';
-                textOverlay.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;z-index:5;';
-                textOverlay.innerHTML = `<div style="text-align:center;color:rgba(255,255,255,0.9);font-size:32px;font-weight:200;letter-spacing:8px;line-height:1.8;white-space:pre;">${item.text}</div>`;
-                bg.parentNode.insertBefore(textOverlay, bg.nextSibling);
+                bg.style.backgroundImage = ''; bg.style.backgroundColor = '#0a0a0a';
+                const overlay = document.createElement('div'); overlay.className = 'text-overlay';
+                overlay.innerHTML = `<div class="text-content">${item.text.replace(/\n/g, '<br>')}</div>`;
+                bg.parentNode.insertBefore(overlay, bg.nextSibling);
             } else {
-                // 画作或照片类型
-                bg.style.backgroundImage = `url(${item.url})`;
-                bg.style.backgroundColor = '';
-                titleEl.textContent = '';
-                artistEl.textContent = '';
+                bg.style.backgroundImage = `url(${item.url})`; bg.style.backgroundColor = '';
             }
         }
 
         function enterMap() {
-            clearInterval(galleryInterval); document.getElementById('home').classList.add('fade-out');
-            setTimeout(() => { document.getElementById('mapPage').classList.add('active'); initGaodeMap(); }, 400);
+            clearInterval(galleryTimer);
+            document.getElementById('home').classList.add('fade-out');
+            setTimeout(() => { document.getElementById('mapPage').classList.add('active'); initMap(); }, 400);
         }
 
-        function backHome() { 
-            document.getElementById('mapPage').classList.remove('active'); 
-            document.getElementById('home').classList.remove('fade-out'); 
-            galleryInterval = setInterval(nextArtwork, 3000); 
+        function backHome() {
+            document.getElementById('mapPage').classList.remove('active');
+            document.getElementById('home').classList.remove('fade-out');
+            galleryTimer = setInterval(nextArtwork, 3000);
         }
 
-        function initGaodeMap() {
-            console.log('初始化高德地图...');
-            
-            // 检查高德API是否加载
-            if (typeof AMap === 'undefined') {
-                console.error('高德API未加载');
-                showToast('地图加载失败，请刷新重试');
-                return;
-            }
-            
-            // 加载插件
-            AMap.plugin(['AMap.Geolocation', 'AMap.HeatMap', 'AMap.Walking'], function() {
-                console.log('高德插件加载完成');
-                
-                // 使用高德地图定位
-                const geolocation = new AMap.Geolocation({
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    buttonPosition: 'RB',
-                    zoomToAccuracy: true
-                });
-                
-                geolocation.getCurrentPosition(function(status, result) {
-                    console.log('定位状态:', status, result);
-                    
+        function initMap() {
+            if (typeof AMap === 'undefined') { showToast('地图加载失败'); return; }
+            AMap.plugin(['AMap.Geolocation', 'AMap.HeatMap', 'AMap.Walking'], () => {
+                const geo = new AMap.Geolocation({ enableHighAccuracy: true, timeout: 10000, zoomToAccuracy: true });
+                geo.getCurrentPosition((status, result) => {
                     if (status === 'complete') {
-                        const lng = result.position.getLng();
-                        const lat = result.position.getLat();
-                        console.log('定位成功:', lng, lat);
-                        initMapWithHeat([lng, lat]);
+                        userPos = [result.position.getLng(), result.position.getLat()];
+                        createMap(userPos);
                     } else {
-                        // 定位失败使用默认位置（广州）
-                        console.log('定位失败，使用默认位置');
-                        showToast('定位失败，使用默认位置');
-                        initMapWithHeat([113.2644, 23.1291]);
+                        userPos = [113.2644, 23.1291];
+                        createMap(userPos);
                     }
                 });
             });
         }
-        
-        function initMapWithHeat(center) {
-            // 初始化地图
-            map = new AMap.Map('gaodeMap', {
-                zoom: 15,
-                center: center,
-                viewMode: '2D',
-                mapStyle: 'amap://styles/dark'
-            });
+
+        function createMap(center) {
+            map = new AMap.Map('gaodeMap', { zoom: 15, center: center, mapStyle: 'amap://styles/dark' });
+            new AMap.Marker({ position: center, map: map, icon: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_b.png' });
             
-            // 添加用户位置标记（蓝色）
-            new AMap.Marker({
-                position: center,
-                map: map,
-                icon: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_b.png',
-                title: '我的位置'
-            });
-            
-            // 模拟安静地点数据（蓝色区域）
-            const quietPlaces = [
-                { name: "街角公园", lng: center[0] + 0.003, lat: center[1] + 0.002 },
-                { name: "小巷咖啡", lng: center[0] - 0.002, lat: center[1] + 0.003 },
-                { name: "河边长椅", lng: center[0] + 0.001, lat: center[1] - 0.003 },
-                { name: "老书店", lng: center[0] - 0.003, lat: center[1] - 0.001 },
+            const places = [
+                { name: "街角公园", pos: [center[0] + 0.003, center[1] + 0.002] },
+                { name: "小巷咖啡", pos: [center[0] - 0.002, center[1] + 0.003] },
+                { name: "河边长椅", pos: [center[0] + 0.001, center[1] - 0.003] },
+                { name: "老书店", pos: [center[0] - 0.003, center[1] - 0.001] }
             ];
             
-            // 在安静地点添加可点击标记
-            quietPlaces.forEach(place => {
-                const marker = new AMap.Marker({
-                    position: [place.lng, place.lat],
-                    map: map,
-                    icon: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_r.png',
-                    title: place.name
-                });
-                
-                marker.on('click', function() {
-                    planWalkRoute(center, [place.lng, place.lat], place.name);
-                });
+            places.forEach(p => {
+                const m = new AMap.Marker({ position: p.pos, map: map, icon: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_r.png' });
+                m.on('click', () => planRoute(center, p.pos, p.name));
             });
             
-            // 模拟热力数据
             const heatData = [];
             for (let i = 0; i < 80; i++) {
-                const offsetX = (Math.random() - 0.5) * 0.015;
-                const offsetY = (Math.random() - 0.5) * 0.015;
-                const lng = center[0] + offsetX;
-                const lat = center[1] + offsetY;
-                const dist = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
-                const count = Math.max(1, Math.floor((0.008 - dist) * 800));
-                
-                heatData.push({ lng: lng, lat: lat, count: Math.max(1, count) });
+                const ox = (Math.random() - 0.5) * 0.015, oy = (Math.random() - 0.5) * 0.015;
+                heatData.push({ lng: center[0] + ox, lat: center[1] + oy, count: Math.max(1, Math.floor((0.008 - Math.sqrt(ox*ox + oy*oy)) * 800)) });
             }
+            new AMap.HeatMap(map, { radius: 40, opacity: [0.3, 0.85], gradient: { 0: '#3b82f6', 0.3: '#60a5fa', 0.5: '#fbbf24', 0.7: '#f97316', 1: '#dc2626' } }).setDataSet({ data: heatData, max: 60 });
             
-            // 添加热力图
-            const heatmap = new AMap.HeatMap(map, {
-                radius: 40,
-                opacity: [0.3, 0.85],
-                gradient: {
-                    0.0: '#3b82f6',
-                    0.3: '#60a5fa',
-                    0.5: '#fbbf24',
-                    0.7: '#f97316',
-                    1.0: '#dc2626'
-                }
-            });
-            heatmap.setDataSet({ data: heatData, max: 60 });
-            
-            // 点击地图任意位置规划路线
-            map.on('click', function(e) {
-                const clickedLng = e.lnglat.getLng();
-                const clickedLat = e.lnglat.getLat();
-                
-                const dist = calculateDistance(center[1], center[0], clickedLat, clickedLng);
-                const walkTime = Math.round(dist / 5 * 60);
-                
-                if (walkTime <= 10) {
-                    planWalkRoute(center, [clickedLng, clickedLat], '选定地点');
-                } else {
-                    showToast('该地点步行超过10分钟，建议选近一点的安静角落');
-                }
+            map.on('click', e => {
+                const pos = [e.lnglat.getLng(), e.lnglat.getLat()];
+                const dist = getDist(center[1], center[0], pos[1], pos[0]);
+                if (dist / 5 * 60 <= 10) planRoute(center, pos, '选定地点');
+                else showToast('超过10分钟步行范围');
             });
             
-            // 显示提示
             setTimeout(() => showToast('点击地图选择目的地'), 1000);
         }
-        
-        // 计算两点距离（公里）
-        function calculateDistance(lat1, lng1, lat2, lng2) {
-            const R = 6371;
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLng = (lng2 - lng1) * Math.PI / 180;
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng/2) * Math.sin(dLng/2);
+
+        function getDist(lat1, lng1, lat2, lng2) {
+            const R = 6371, dLat = (lat2 - lat1) * Math.PI / 180, dLng = (lng2 - lng1) * Math.PI / 180;
+            const a = Math.sin(dLat/2)**2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng/2)**2;
             return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         }
-        
-        // 规划步行路线
-        let walkingRoute = null;
-        let currentDestination = null;
-        
-        function planWalkRoute(start, end, placeName) {
-            // 清除之前的路线
-            if (walkingRoute) {
-                walkingRoute.clear();
-            }
-            
-            currentDestination = { end: end, name: placeName };
-            
-            // 创建步行导航
-            walkingRoute = new AMap.Walking({
-                map: map,
-                panel: false
-            });
-            
-            walkingRoute.search(start, end, function(status, result) {
+
+        function planRoute(start, end, name) {
+            if (route) route.clear();
+            dest = { end, name };
+            route = new AMap.Walking({ map: map, panel: false });
+            route.search(start, end, (status, result) => {
                 if (status === 'complete') {
-                    const route = result.routes[0];
-                    const distance = route.distance;
-                    const time = Math.round(route.time / 60);
-                    
-                    // 更新UI
+                    const r = result.routes[0], time = Math.round(r.time / 60);
                     document.getElementById('defaultInfo').style.display = 'none';
                     document.getElementById('routeInfo').style.display = 'flex';
-                    document.getElementById('routeDestination').textContent = placeName;
-                    document.getElementById('routeMeta').textContent = `约 ${distance} 米`;
-                    document.getElementById('timeValue').textContent = time;
-                    
-                    const actionBtn = document.getElementById('actionBtn');
-                    if (time <= 10) {
-                        actionBtn.disabled = false;
-                        actionBtn.textContent = '开始步行导航';
-                        actionBtn.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-                    } else {
-                        actionBtn.disabled = true;
-                        actionBtn.textContent = '超过10分钟步行范围';
-                        actionBtn.style.background = '#ccc';
-                    }
+                    document.getElementById('routeDest').textContent = name;
+                    document.getElementById('routeMeta').textContent = `约 ${r.distance} 米`;
+                    document.getElementById('timeVal').textContent = time;
+                    const btn = document.getElementById('navBtn');
+                    btn.disabled = time > 10;
+                    btn.textContent = time > 10 ? '超过10分钟范围' : '开始步行导航';
                 }
             });
         }
-        
-        // 开始导航
-        function startNavigation() {
-            if (currentDestination) {
-                const [lng, lat] = currentDestination.end;
-                // 打开高德地图导航
-                window.location.href = `https://uri.amap.com/navigation?to=${lng},${lat},${encodeURIComponent(currentDestination.name)}&mode=walk&coordinate=gaode`;
-            }
+
+        function startNav() {
+            if (dest) window.location.href = `https://uri.amap.com/navigation?to=${dest.end[0]},${dest.end[1]},${encodeURIComponent(dest.name)}&mode=walk&coordinate=gaode`;
         }
-        
-        // 显示提示
-        function showToast(message) {
-            const toast = document.getElementById('locationToast');
-            toast.textContent = message;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 3000);
+
+        function showToast(msg) {
+            const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
         }
 
         initGallery();

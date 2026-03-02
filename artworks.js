@@ -6,12 +6,8 @@ const artworks = [
     { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Automat_by_Edward_Hopper.jpg/800px-Automat_by_Edward_Hopper.jpg" },
     { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Room_in_New_York_by_Edward_Hopper.jpg/800px-Room_in_New_York_by_Edward_Hopper.jpg" },
     { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Summer_Evening_by_Edward_Hopper.jpg/800px-Summer_Evening_by_Edward_Hopper.jpg" },
-    
-    // 常玉画作
     { type: "painting", title: "", artist: "", url: "https://www.tinakenggallery.com/upload/artwork/9560.jpg" },
     { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/en/thumb/5/5c/Sanyu_Pink_Chrisanthemums.jpg/800px-Sanyu_Pink_Chrisanthemums.jpg" },
-    
-    // 其他艺术画作
     { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/The_Sleeping_Gypsy_by_Henri_Rousseau.jpg/1200px-The_Sleeping_Gypsy_by_Henri_Rousseau.jpg" },
     { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Vincent_Willem_van_Gogh_127.jpg/800px-Vincent_Willem_van_Gogh_127.jpg" },
     { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/The_Great_Wave_off_Kanagawa.jpg/1200px-The_Great_Wave_off_Kanagawa.jpg" },
@@ -43,8 +39,7 @@ const artworks = [
     { type: "text", title: "不必", artist: "解释", text: "不必\n解释" },
     { type: "text", title: "沉默", artist: "是金", text: "沉默\n是\n金" },
     
-    // ===== 照片 (15张) - 纯风景/静物/建筑，绝对无人像 =====
-    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80" },
+    // ===== 照片 (15张) - 纯风景/静物，绝对无人像 =====
     { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80" },
     { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=800&q=80" },
     { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=800&q=80" },
@@ -59,6 +54,7 @@ const artworks = [
     { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=800&q=80" },
     { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=800&q=80" },
     { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1507400492013-162706c8c05e?w=800&q=80" },
+    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80" },
 ];
 
 // 随机打乱数组
