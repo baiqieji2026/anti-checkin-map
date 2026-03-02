@@ -5,63 +5,85 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>我想静静</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; image-rendering: pixelated; }
-        body { font-family: 'Courier New', monospace; overflow: hidden; background: #0a0a0a; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, sans-serif; overflow: hidden; background: #000; }
         
-        /* 首页 - 像素风格 */
+        /* 首页 - 艺术画廊 */
         .home {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: #0a0a0a; z-index: 100; transition: opacity 0.6s ease;
+            z-index: 100; transition: opacity 0.8s ease;
         }
         .home.fade-out { opacity: 0; pointer-events: none; }
         
-        .home::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: 
-                repeating-linear-gradient(0deg, transparent, transparent 4px, rgba(30, 58, 95, 0.03) 4px, rgba(30, 58, 95, 0.03) 8px),
-                repeating-linear-gradient(90deg, transparent, transparent 4px, rgba(30, 58, 95, 0.03) 4px, rgba(30, 58, 95, 0.03) 8px);
-            pointer-events: none;
+        /* 背景画廊 */
+        .gallery-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover; background-position: center;
+            transition: opacity 1s ease;
+        }
+        .gallery-bg.fade { opacity: 0; }
+        
+        /* 暗色遮罩 */
+        .overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.8) 100%);
         }
         
-        .pixel-title {
-            font-size: 12px; color: #4a5568; margin-bottom: 60px;
-            letter-spacing: 4px; text-transform: uppercase;
-            text-shadow: 2px 2px 0 rgba(30, 58, 95, 0.3);
+        /* 内容层 */
+        .content {
+            position: relative; z-index: 10;
+            height: 100%; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
         }
         
-        .pixel-btn {
-            position: relative; padding: 20px 40px; background: #1e3a8a;
-            border: 4px solid #3b82f6; color: #fff; font-size: 16px;
-            letter-spacing: 4px; cursor: pointer;
-            box-shadow: 4px 4px 0 #0f172a, inset -4px -4px 0 rgba(0,0,0,0.2), inset 4px 4px 0 rgba(255,255,255,0.1);
-            animation: pixel-breathe 3s steps(2) infinite; transition: transform 0.1s;
+        /* 画作信息 */
+        .artwork-info {
+            position: absolute; bottom: 140px; left: 0; right: 0;
+            text-align: center; padding: 0 20px;
+            opacity: 0.7;
+        }
+        .artwork-title {
+            font-size: 11px; color: rgba(255,255,255,0.6);
+            letter-spacing: 2px; margin-bottom: 4px;
+        }
+        .artwork-artist {
+            font-size: 10px; color: rgba(255,255,255,0.4);
         }
         
-        @keyframes pixel-breathe {
-            0%, 100% { box-shadow: 4px 4px 0 #0f172a, 0 0 20px rgba(59, 130, 246, 0.3), inset -4px -4px 0 rgba(0,0,0,0.2), inset 4px 4px 0 rgba(255,255,255,0.1); }
-            50% { box-shadow: 4px 4px 0 #0f172a, 0 0 40px rgba(59, 130, 246, 0.5), inset -4px -4px 0 rgba(0,0,0,0.2), inset 4px 4px 0 rgba(255,255,255,0.1); }
+        /* 主按钮 */
+        .btn-quiet {
+            padding: 20px 50px; background: transparent;
+            border: 1px solid rgba(255,255,255,0.3); color: rgba(255,255,255,0.9);
+            font-size: 18px; letter-spacing: 8px;
+            cursor: pointer; transition: all 0.4s ease;
+            backdrop-filter: blur(4px);
+        }
+        .btn-quiet:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.5);
         }
         
-        .pixel-btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 #0f172a, inset -4px -4px 0 rgba(0,0,0,0.2), inset 4px 4px 0 rgba(255,255,255,0.1); }
-        
-        .pixel-decoration { position: absolute; width: 8px; height: 8px; background: #3b82f6; opacity: 0.3; }
-        .pixel-decoration:nth-child(1) { top: 20%; left: 15%; animation: twinkle 2s steps(2) infinite; }
-        .pixel-decoration:nth-child(2) { top: 30%; right: 20%; animation: twinkle 3s steps(2) infinite 0.5s; }
-        .pixel-decoration:nth-child(3) { bottom: 25%; left: 25%; animation: twinkle 2.5s steps(2) infinite 1s; }
-        .pixel-decoration:nth-child(4) { bottom: 35%; right: 15%; animation: twinkle 2s steps(2) infinite 1.5s; }
-        
-        @keyframes twinkle { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.6; } }
-        
-        .home-hint { position: absolute; bottom: 80px; font-size: 10px; color: #374151; letter-spacing: 2px; }
+        /* 指示器 */
+        .indicators {
+            position: absolute; bottom: 60px; left: 0; right: 0;
+            display: flex; justify-content: center; gap: 8px;
+        }
+        .indicator {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            transition: all 0.3s;
+        }
+        .indicator.active {
+            background: rgba(255,255,255,0.8);
+            transform: scale(1.2);
+        }
         
         /* 地图页 */
-        .map-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; transform: scale(0.9); transition: opacity 0.5s ease, transform 0.5s ease; background: #0a0a0a; overflow: hidden; }
+        .map-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; transform: scale(0.95); transition: opacity 0.6s ease, transform 0.6s ease; background: #0a0a0a; overflow: hidden; }
         .map-page.active { opacity: 1; transform: scale(1); }
         
-        .pixel-map { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: grid; grid-template-columns: repeat(16, 1fr); grid-template-rows: repeat(20, 1fr); gap: 1px; width: 100%; max-width: 400px; aspect-ratio: 4/5; padding: 10px; }
+        .pixel-map { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: grid; grid-template-columns: repeat(16, 1fr); gap: 1px; width: 100%; max-width: 400px; aspect-ratio: 1; padding: 10px; }
         .pixel-cell { aspect-ratio: 1; }
-        
         .cell-quiet-5 { background: #1e3a8a; }
         .cell-quiet-4 { background: #3b82f6; }
         .cell-quiet-3 { background: #059669; }
@@ -69,49 +91,49 @@
         .cell-quiet-1 { background: #dc2626; }
         .cell-empty { background: #1a1a2e; }
         
-        .user-pixel { position: absolute; width: 16px; height: 16px; background: #fff; border: 2px solid #3b82f6; z-index: 20; animation: pixel-pulse 1s steps(2) infinite; }
-        @keyframes pixel-pulse { 0%, 100% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.2); } }
+        .user-marker { position: absolute; width: 14px; height: 14px; background: #fff; border: 2px solid #3b82f6; border-radius: 50%; z-index: 20; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.1); } }
         
-        .place-marker { position: absolute; transform: translate(-50%, -50%); z-index: 15; cursor: pointer; }
-        .place-marker .dot { width: 12px; height: 12px; }
-        .place-marker .label { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); white-space: nowrap; font-size: 9px; color: #fff; background: rgba(0,0,0,0.8); padding: 2px 6px; }
+        .back-btn { position: absolute; top: 50px; left: 20px; z-index: 30; padding: 10px 20px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 12px; cursor: pointer; }
         
-        .back-btn { position: absolute; top: 50px; left: 20px; z-index: 30; padding: 8px 16px; background: #1e3a8a; border: 3px solid #3b82f6; color: #fff; font-size: 12px; cursor: pointer; box-shadow: 3px 3px 0 #0f172a; }
-        .back-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #0f172a; }
-        
-        .legend { position: absolute; bottom: 20px; left: 20px; right: 20px; z-index: 30; background: rgba(10,10,10,0.95); border: 3px solid #1e3a8a; padding: 12px; }
-        .legend-title { font-size: 10px; color: #6b7280; margin-bottom: 8px; letter-spacing: 2px; }
+        .legend { position: absolute; bottom: 30px; left: 20px; right: 20px; z-index: 30; background: rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 16px; }
+        .legend-title { font-size: 11px; color: #6b7280; margin-bottom: 10px; letter-spacing: 1px; }
         .legend-items { display: flex; justify-content: space-between; }
-        .legend-item { display: flex; align-items: center; gap: 4px; font-size: 9px; color: #9ca3af; }
-        .legend-dot { width: 8px; height: 8px; }
+        .legend-item { display: flex; align-items: center; gap: 6px; font-size: 10px; color: #9ca3af; }
+        .legend-dot { width: 10px; height: 10px; border-radius: 2px; }
         
-        .place-card { position: absolute; bottom: 100px; left: 20px; right: 20px; background: rgba(10,10,10,0.98); border: 3px solid #3b82f6; padding: 16px; z-index: 25; display: none; box-shadow: 4px 4px 0 #0f172a; }
-        .place-card.show { display: block; animation: slide-up 0.2s steps(3); }
+        .place-card { position: absolute; bottom: 120px; left: 20px; right: 20px; background: rgba(0,0,0,0.95); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; z-index: 25; display: none; }
+        .place-card.show { display: block; animation: slide-up 0.3s ease; }
         @keyframes slide-up { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        
-        .place-name { font-size: 14px; color: #fff; margin-bottom: 8px; letter-spacing: 1px; }
-        .place-info { display: flex; gap: 16px; font-size: 11px; color: #9ca3af; margin-bottom: 12px; }
-        .btn-navigate { width: 100%; padding: 12px; background: #1e3a8a; border: 2px solid #3b82f6; color: #fff; font-size: 12px; cursor: pointer; letter-spacing: 2px; }
-        .btn-navigate:active { background: #1e40af; }
-        
-        .loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #4a5568; font-size: 12px; letter-spacing: 2px; }
+        .place-name { font-size: 16px; color: #fff; margin-bottom: 8px; }
+        .place-info { display: flex; gap: 20px; font-size: 12px; color: #9ca3af; margin-bottom: 16px; }
+        .btn-navigate { width: 100%; padding: 14px; background: #1e3a8a; border: none; border-radius: 8px; color: #fff; font-size: 14px; cursor: pointer; }
     </style>
 </head>
 <body>
+    <!-- 首页 - 艺术画廊 -->
     <div class="home" id="home">
-        <div class="pixel-decoration"></div>
-        <div class="pixel-decoration"></div>
-        <div class="pixel-decoration"></div>
-        <div class="pixel-decoration"></div>
-        <div class="pixel-title">找人少、安静、可独处的地方</div>
-        <button class="pixel-btn" onclick="enterMap()">我想静静</button>
-        <div class="home-hint">只推荐步行10分钟内可达的角落</div>
+        <div class="gallery-bg" id="galleryBg"></div>
+        <div class="overlay"></div>
+        
+        <div class="content">
+            <button class="btn-quiet" onclick="enterMap()">我想静静</button>
+            
+            <div class="artwork-info" id="artworkInfo">
+                <div class="artwork-title" id="artworkTitle"></div>
+                <div class="artwork-artist" id="artworkArtist"></div>
+            </div>
+            
+            <div class="indicators" id="indicators"></div>
+        </div>
     </div>
 
+    <!-- 地图页 -->
     <div class="map-page" id="mapPage">
         <button class="back-btn" onclick="backHome()">← 返回</button>
-        <div class="loading" id="loading">正在寻找安静的角落...</div>
         <div class="pixel-map" id="pixelMap"></div>
+        <div class="user-marker" id="userMarker" style="display:none; left:50%; top:50%;"></div>
+        
         <div class="legend">
             <div class="legend-title">安静指数</div>
             <div class="legend-items">
@@ -121,17 +143,81 @@
                 <div class="legend-item"><div class="legend-dot" style="background:#d97706"></div><span>热闹</span></div>
             </div>
         </div>
+        
         <div class="place-card" id="placeCard">
             <div class="place-name" id="placeName"></div>
             <div class="place-info">
                 <span id="walkTime"></span>
                 <span id="distance"></span>
             </div>
-            <button class="btn-navigate" id="navBtn">步行前往 →</button>
+            <button class="btn-navigate" id="navBtn">步行前往</button>
         </div>
     </div>
 
     <script>
+        // 艺术作品数据 - 使用 Unsplash 图片模拟这些氛围
+        const artworks = [
+            { title: "深夜的窗边", artist: "Edward Hopper 风格", url: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80" },
+            { title: "空荡的房间", artist: "Vilhelm Hammershøi 风格", url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80" },
+            { title: "雾中的长椅", artist: "孤独时刻", url: "https://images.unsplash.com/photo-1515549832467-8783363e19b6?w=800&q=80" },
+            { title: "深夜的街道", artist: "城市孤独", url: "https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=800&q=80" },
+            { title: "晨光中的独坐", artist: "Andrew Wyeth 风格", url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80" },
+            { title: "雨夜的窗", artist: "静谧时刻", url: "https://images.unsplash.com/photo-1515169067868-5387ec356754?w=800&q=80" },
+            { title: "空旷的楼梯", artist: "空间与孤独", url: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80" },
+            { title: "黄昏的岸边", artist: "独处时光", url: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800&q=80" },
+        ];
+
+        let currentArtwork = 0;
+        let galleryInterval;
+
+        // 初始化画廊
+        function initGallery() {
+            const bg = document.getElementById('galleryBg');
+            const indicators = document.getElementById('indicators');
+            
+            // 创建指示器
+            artworks.forEach((_, i) => {
+                const dot = document.createElement('div');
+                dot.className = 'indicator' + (i === 0 ? ' active' : '');
+                indicators.appendChild(dot);
+            });
+            
+            // 设置第一张图
+            bg.style.backgroundImage = `url(${artworks[0].url})`;
+            updateArtworkInfo(0);
+            
+            // 开始轮播
+            galleryInterval = setInterval(nextArtwork, 5000);
+        }
+
+        function nextArtwork() {
+            const bg = document.getElementById('galleryBg');
+            const indicators = document.querySelectorAll('.indicator');
+            
+            // 淡出
+            bg.classList.add('fade');
+            
+            setTimeout(() => {
+                currentArtwork = (currentArtwork + 1) % artworks.length;
+                bg.style.backgroundImage = `url(${artworks[currentArtwork].url})`;
+                updateArtworkInfo(currentArtwork);
+                
+                // 更新指示器
+                indicators.forEach((dot, i) => {
+                    dot.classList.toggle('active', i === currentArtwork);
+                });
+                
+                // 淡入
+                bg.classList.remove('fade');
+            }, 1000);
+        }
+
+        function updateArtworkInfo(index) {
+            document.getElementById('artworkTitle').textContent = artworks[index].title;
+            document.getElementById('artworkArtist').textContent = artworks[index].artist;
+        }
+
+        // 地图数据
         const places = [
             { name: "越秀公园东北角", lat: 23.1408, lng: 113.2644, quiet: 4 },
             { name: "天河公园西门小湖", lat: 23.1286, lng: 113.3617, quiet: 4 },
@@ -144,7 +230,6 @@
         ];
 
         let userLocation = null;
-        let nearbyPlaces = [];
 
         function getDistance(lat1, lng1, lat2, lng2) {
             const R = 6371;
@@ -159,17 +244,19 @@
         }
 
         function enterMap() {
+            clearInterval(galleryInterval);
             document.getElementById('home').classList.add('fade-out');
             setTimeout(() => {
                 document.getElementById('mapPage').classList.add('active');
                 initMap();
-            }, 300);
+            }, 400);
         }
 
         function backHome() {
             document.getElementById('mapPage').classList.remove('active');
             document.getElementById('home').classList.remove('fade-out');
             document.getElementById('placeCard').classList.remove('show');
+            galleryInterval = setInterval(nextArtwork, 5000);
         }
 
         function initMap() {
@@ -192,81 +279,55 @@
         }
 
         function renderMap() {
-            document.getElementById('loading').style.display = 'none';
             const grid = document.getElementById('pixelMap');
-            
-            nearbyPlaces = places.map(p => {
+            const nearby = places.map(p => {
                 const dist = getDistance(userLocation.lat, userLocation.lng, p.lat, p.lng);
-                const walkTime = getWalkTime(dist);
-                return { ...p, dist, walkTime };
+                return { ...p, dist, walkTime: getWalkTime(dist) };
             }).filter(p => p.walkTime <= 10).sort((a, b) => a.walkTime - b.walkTime);
             
             grid.innerHTML = '';
             
-            // 16x20 = 320个像素格子
-            for (let i = 0; i < 320; i++) {
+            // 16x16 像素网格
+            for (let i = 0; i < 256; i++) {
                 const cell = document.createElement('div');
                 cell.className = 'pixel-cell';
-                
                 const row = Math.floor(i / 16);
                 const col = i % 16;
                 
-                // 计算这个格子与各个地点的距离
                 let minDist = Infinity;
                 let nearestQuiet = 1;
                 
-                nearbyPlaces.forEach(p => {
-                    const pRow = 10 + Math.floor((p.lat - userLocation.lat) * 200);
-                    const pCol = 8 + Math.floor((p.lng - userLocation.lng) * 200);
+                nearby.forEach(p => {
+                    const pRow = 8 + Math.floor((p.lat - userLocation.lat) * 300);
+                    const pCol = 8 + Math.floor((p.lng - userLocation.lng) * 300);
                     const d = Math.abs(row - pRow) + Math.abs(col - pCol);
-                    if (d < minDist) {
-                        minDist = d;
-                        nearestQuiet = p.quiet;
-                    }
+                    if (d < minDist) { minDist = d; nearestQuiet = p.quiet; }
                 });
                 
-                // 根据距离衰减
                 let quietLevel = nearestQuiet;
                 if (minDist > 2) quietLevel = Math.max(1, quietLevel - 1);
                 if (minDist > 5) quietLevel = Math.max(1, quietLevel - 1);
                 
-                // 中心区域（用户位置）周围是空的
-                const centerRow = 10;
-                const centerCol = 8;
-                const distToCenter = Math.abs(row - centerRow) + Math.abs(col - centerCol);
-                
-                if (distToCenter <= 1) {
-                    cell.classList.add('cell-empty');
-                } else if (nearbyPlaces.length === 0 || minDist > 8) {
-                    cell.classList.add('cell-empty');
-                } else {
-                    cell.classList.add(`cell-quiet-${quietLevel}`);
-                }
+                const distToCenter = Math.abs(row - 8) + Math.abs(col - 8);
+                if (distToCenter <= 1) cell.classList.add('cell-empty');
+                else if (nearby.length === 0 || minDist > 8) cell.classList.add('cell-empty');
+                else cell.classList.add(`cell-quiet-${quietLevel}`);
                 
                 grid.appendChild(cell);
             }
             
-            // 用户位置标记（中心）
-            const userMarker = document.createElement('div');
-            userMarker.className = 'user-pixel';
-            userMarker.style.left = '50%';
-            userMarker.style.top = '50%';
-            grid.appendChild(userMarker);
+            document.getElementById('userMarker').style.display = 'block';
             
-            // 地点标记
-            nearbyPlaces.forEach(p => {
+            nearby.forEach(p => {
                 const marker = document.createElement('div');
-                marker.className = 'place-marker';
-                const offsetY = (userLocation.lat - p.lat) * 4000;
-                const offsetX = (p.lng - userLocation.lng) * 4000;
+                marker.style.cssText = `position:absolute;transform:translate(-50%,-50%);z-index:15;cursor:pointer;`;
+                const offsetY = (userLocation.lat - p.lat) * 5000;
+                const offsetX = (p.lng - userLocation.lng) * 5000;
                 marker.style.left = `calc(50% + ${offsetX}px)`;
                 marker.style.top = `calc(50% + ${offsetY}px)`;
-                
-                const colors = { 5: '#1e3a8a', 4: '#3b82f6', 3: '#059669', 2: '#d97706', 1: '#dc2626' };
-                marker.innerHTML = `
-                    <div class="dot" style="background:${colors[p.quiet]}"></div>
-                    <div class="label">${p.walkTime}分</div>
-                `;
+                const colors = { 5: '#1e3a8a', 4: '#3b82f6', 3: '#059669' };
+                marker.innerHTML = `<div style="width:12px;height:12px;background:${colors[p.quiet]};border-radius:50%;border:2px solid #fff;"></div>
+                    <div style="position:absolute;top:14px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:10px;color:#fff;background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:4px;">${p.walkTime}分</div>`;
                 marker.onclick = () => showPlace(p);
                 grid.appendChild(marker);
             });
@@ -279,18 +340,13 @@
             document.getElementById('placeCard').classList.add('show');
             
             document.getElementById('navBtn').onclick = () => {
-                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
                 const name = encodeURIComponent(p.name);
-                if (isIOS) {
-                    window.location.href = `iosamap://path?dlat=${p.lat}&dlon=${p.lng}&dname=${name}&dev=0&t=2`;
-                } else {
-                    window.location.href = `amapuri://route/plan/?dlat=${p.lat}&dlon=${p.lng}&dname=${name}&dev=0&t=2`;
-                }
-                setTimeout(() => {
-                    window.location.href = `https://uri.amap.com/navigation?to=${p.lng},${p.lat},${name}&mode=walk&coordinate=gaode`;
-                }, 500);
+                window.location.href = `https://uri.amap.com/navigation?to=${p.lng},${p.lat},${name}&mode=walk&coordinate=gaode`;
             };
         }
+
+        // 初始化
+        initGallery();
     </script>
 </body>
 </html>
