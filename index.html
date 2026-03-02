@@ -3,183 +3,350 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>我想静静 - 反打卡地图</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>我想静静</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-        .place-card { transition: all 0.2s; }
-        .place-card:active { transform: scale(0.98); }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, sans-serif; 
+            background: #0d1117; 
+            color: #fff;
+            overflow: hidden;
+        }
+        
+        /* 首页 */
+        .home {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(180deg, #0d1117 0%, #161b22 100%);
+        }
+        
+        .home-title {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 60px;
+            letter-spacing: 2px;
+        }
+        
+        .btn-quiet {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: #1e3a5f;
+            border: 2px solid #2d5a87;
+            color: #7dd3fc;
+            font-size: 18px;
+            letter-spacing: 4px;
+            cursor: pointer;
+            animation: breathe 4s ease-in-out infinite;
+            transition: all 0.3s;
+        }
+        
+        .btn-quiet:active {
+            transform: scale(0.95);
+            background: #2d5a87;
+        }
+        
+        @keyframes breathe {
+            0%, 100% { box-shadow: 0 0 20px rgba(125, 211, 252, 0.2); }
+            50% { box-shadow: 0 0 40px rgba(125, 211, 252, 0.4); }
+        }
+        
+        .home-hint {
+            position: absolute;
+            bottom: 60px;
+            font-size: 12px;
+            color: #4b5563;
+        }
+        
+        /* 地图页 */
+        .map-page {
+            display: none;
+            height: 100vh;
+            position: relative;
+        }
+        
+        .map-page.active {
+            display: block;
+        }
+        
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* 马赛克色块层 */
+        .mosaic-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        .mosaic-block {
+            position: absolute;
+            border-radius: 4px;
+            opacity: 0.7;
+        }
+        
+        .mosaic-blue { background: #1e40af; }
+        .mosaic-green { background: #059669; }
+        .mosaic-yellow { background: #d97706; }
+        .mosaic-red { background: #dc2626; }
+        
+        /* 地点卡片 */
+        .place-card {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(13, 17, 23, 0.95);
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 20px;
+            z-index: 20;
+            backdrop-filter: blur(10px);
+        }
+        
+        .place-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #7dd3fc;
+        }
+        
+        .place-meta {
+            display: flex;
+            gap: 20px;
+            margin-top: 12px;
+            font-size: 13px;
+            color: #9ca3af;
+        }
+        
+        .place-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .btn-walk {
+            width: 100%;
+            margin-top: 16px;
+            padding: 14px;
+            background: #1e40af;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-walk:active {
+            background: #1e3a8a;
+        }
+        
+        .back-btn {
+            position: absolute;
+            top: 50px;
+            left: 20px;
+            z-index: 30;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(13, 17, 23, 0.9);
+            border: 1px solid #30363d;
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        
+        .legend {
+            position: absolute;
+            top: 50px;
+            right: 20px;
+            z-index: 30;
+            background: rgba(13, 17, 23, 0.9);
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 11px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 4px 0;
+        }
+        
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+        }
     </style>
 </head>
-<body class="bg-gray-50">
-    <div class="bg-white border-b px-4 py-3 sticky top-0 z-10">
-        <h1 class="text-lg font-semibold text-gray-800">我想静静</h1>
-        <p class="text-xs text-gray-500">找人少、安静、可独处的地方</p>
+<body>
+    <!-- 首页 -->
+    <div class="home" id="home">
+        <div class="home-title">找人少、安静、可独处的地方</div>
+        <button class="btn-quiet" onclick="enterMap()">我想静静</button>
+        <div class="home-hint">只推荐步行10分钟内可达的角落</div>
     </div>
 
-    <div class="bg-blue-50 px-4 py-2 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-            <span class="w-2 h-2 bg-blue-500 rounded-full animate-pulse" id="loc-dot"></span>
-            <span class="text-sm text-blue-700" id="location-status">点击页面任意位置开始定位...</span>
+    <!-- 地图页 -->
+    <div class="map-page" id="mapPage">
+        <button class="back-btn" onclick="backHome()">←</button>
+        <div id="map"></div>
+        <div class="mosaic-layer" id="mosaicLayer"></div>
+        <div class="legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#1e40af"></div><span>人少安静</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:#059669"></div><span>较为安静</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:#d97706"></div><span>中等热闹</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:#dc2626"></div><span>建议避开</span></div>
         </div>
-        <button onclick="requestLocation()" class="text-sm text-blue-600">刷新</button>
+        <div class="place-card" id="placeCard" style="display:none">
+            <div class="place-name" id="placeName"></div>
+            <div class="place-meta">
+                <span>🚶 <span id="walkTime"></span>分钟</span>
+                <span>📍 <span id="distance"></span>km</span>
+                <span>🔵 安静指数 <span id="quietLevel"></span></span>
+            </div>
+            <button class="btn-walk" id="walkBtn">步行前往</button>
+        </div>
     </div>
 
-    <div id="places-list" class="divide-y"></div>
-
+    <script src="https://webapi.amap.com/maps?v=2.0&key=YOUR_AMAP_KEY"></script>
     <script>
-        const locations = [
-            { name: "越秀公园东北角", address: "越秀区解放北路", lat: 23.1408, lng: 113.2644, quiet: 4, time: "工作日下午", desc: "本地人晨练区域，游客少至" },
-            { name: "天河公园西门小湖", address: "天河区黄埔大道中", lat: 23.1286, lng: 113.3617, quiet: 4, time: "上午9-11点", desc: "小湖周边有石凳，非游船区域" },
-            { name: "海珠湖公园西侧栈道", address: "海珠区新滘中路", lat: 23.0703, lng: 113.3144, quiet: 5, time: "清晨7-9点", desc: "栈道深入湿地，观鸟人群少至" },
-            { name: "白云山摩星岭后山", address: "白云区广园中路", lat: 23.1833, lng: 113.3000, quiet: 4, time: "工作日全天", desc: "后山小路，本地登山者才知道" },
-            { name: "珠江公园东区", address: "天河区金穗路", lat: 23.1250, lng: 113.3333, quiet: 4, time: "工作日下午", desc: "树林茂密，无网红拍照点" },
-            { name: "荔湾湖公园老西关", address: "荔湾区龙津西路", lat: 23.1167, lng: 113.2500, quiet: 4, time: "清晨、傍晚", desc: "老广州生活区，非游客打卡点" },
-            { name: "东山口新河浦老别墅区", address: "越秀区新河浦路", lat: 23.1208, lng: 113.3000, quiet: 5, time: "工作日上午", desc: "老别墅区深处，无咖啡店" },
-            { name: "西关大屋群", address: "荔湾区多宝路", lat: 23.1167, lng: 113.2333, quiet: 4, time: "全天", desc: "原住民生活区，无商业开发" },
-            { name: "沙面岛北侧", address: "荔湾区沙面北街", lat: 23.1083, lng: 113.2500, quiet: 4, time: "工作日上午", desc: "老领事馆区深处，游客少至" },
-            { name: "华侨新村老别墅区", address: "越秀区爱国路", lat: 23.1333, lng: 113.2833, quiet: 5, time: "全天", desc: "老归侨居住区，无商业" },
-            { name: "江南西青凤大街", address: "海珠区江南西路", lat: 23.1000, lng: 113.2667, quiet: 3, time: "工作日下午", desc: "老居民区，远离网红店" },
-            { name: "珠江前航道员村段", address: "天河区员村二横路", lat: 23.1167, lng: 113.3500, quiet: 4, time: "清晨、傍晚", desc: "本地钓鱼者聚集地" },
-            { name: "琶洲大桥下", address: "海珠区琶洲大桥北", lat: 23.1000, lng: 113.3667, quiet: 3, time: "清晨6-8点", desc: "桥底空间，本地跑步者知道" },
-            { name: "芳村花地河沿岸", address: "荔湾区花地大道南", lat: 23.0833, lng: 113.2333, quiet: 4, time: "傍晚", desc: "老芳村区域，非景点" },
-            { name: "洛溪岛江边", address: "番禺区洛溪岛东侧", lat: 23.0333, lng: 113.3167, quiet: 4, time: "全天", desc: "番禺边缘区域，人少" },
-            { name: "广州图书馆8-9楼", address: "天河区珠江新城", lat: 23.1208, lng: 113.3250, quiet: 5, time: "工作日上午", desc: "非考试季人少，有靠窗座位" },
-            { name: "广东省博物馆", address: "天河区珠江新城", lat: 23.1167, lng: 113.3250, quiet: 4, time: "工作日上午", desc: "非临展期间人少" },
-            { name: "方所书店", address: "天河区太古汇", lat: 23.1333, lng: 113.3333, quiet: 3, time: "工作日上午", desc: "非周末上午人少" },
-            { name: "红专厂旧址", address: "天河区员村四横路", lat: 23.1167, lng: 113.3667, quiet: 5, time: "白天", desc: "部分区域未重建，老厂房氛围" },
-            { name: "珠江啤酒厂旧址", address: "海珠区琶洲", lat: 23.1000, lng: 113.3500, quiet: 4, time: "全天", desc: "工业遗址，非景点" }
+        const places = [
+            { name: "越秀公园东北角", lat: 23.1408, lng: 113.2644, quiet: 4, walkTime: 8 },
+            { name: "天河公园西门小湖", lat: 23.1286, lng: 113.3617, quiet: 4, walkTime: 12 },
+            { name: "海珠湖公园西侧栈道", lat: 23.0703, lng: 113.3144, quiet: 5, walkTime: 15 },
+            { name: "白云山摩星岭后山", lat: 23.1833, lng: 113.3000, quiet: 4, walkTime: 25 },
+            { name: "珠江公园东区", lat: 23.1250, lng: 113.3333, quiet: 4, walkTime: 10 },
+            { name: "荔湾湖公园老西关", lat: 23.1167, lng: 113.2500, quiet: 4, walkTime: 18 },
+            { name: "东山口新河浦老别墅区", lat: 23.1208, lng: 113.3000, quiet: 5, walkTime: 9 },
+            { name: "西关大屋群", lat: 23.1167, lng: 113.2333, quiet: 4, walkTime: 20 },
+            { name: "沙面岛北侧", lat: 23.1083, lng: 113.2500, quiet: 4, walkTime: 22 },
+            { name: "华侨新村老别墅区", lat: 23.1333, lng: 113.2833, quiet: 5, walkTime: 7 },
+            { name: "江南西青凤大街", lat: 23.1000, lng: 113.2667, quiet: 3, walkTime: 14 },
+            { name: "珠江前航道员村段", lat: 23.1167, lng: 113.3500, quiet: 4, walkTime: 11 },
+            { name: "琶洲大桥下", lat: 23.1000, lng: 113.3667, quiet: 3, walkTime: 16 },
+            { name: "芳村花地河沿岸", lat: 23.0833, lng: 113.2333, quiet: 4, walkTime: 28 },
+            { name: "洛溪岛江边", lat: 23.0333, lng: 113.3167, quiet: 4, walkTime: 35 },
+            { name: "广州图书馆8-9楼", lat: 23.1208, lng: 113.3250, quiet: 5, walkTime: 6 },
+            { name: "广东省博物馆", lat: 23.1167, lng: 113.3250, quiet: 4, walkTime: 8 },
+            { name: "方所书店", lat: 23.1333, lng: 113.3333, quiet: 3, walkTime: 13 },
+            { name: "红专厂旧址", lat: 23.1167, lng: 113.3667, quiet: 5, walkTime: 19 },
+            { name: "珠江啤酒厂旧址", lat: 23.1000, lng: 113.3500, quiet: 4, walkTime: 17 }
         ];
+
+        let map = null;
+        let userLocation = null;
 
         function getDistance(lat1, lng1, lat2, lng2) {
             const R = 6371;
             const dLat = (lat2 - lat1) * Math.PI / 180;
             const dLng = (lng2 - lng1) * Math.PI / 180;
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng/2) * Math.sin(dLng/2);
+            const a = Math.sin(dLat/2)**2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng/2)**2;
             return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         }
 
-        function getQuietStars(level) {
-            return '★'.repeat(level) + '☆'.repeat(5 - level);
+        function getWalkTime(distance) {
+            return Math.round(distance / 5 * 60); // 步行速度约5km/h
         }
 
-        function renderPlaces(userLat, userLng) {
-            const withDist = locations.map(p => ({...p, dist: getDistance(userLat, userLng, p.lat, p.lng)}));
-            withDist.sort((a, b) => a.dist - b.dist);
-            
-            const top3 = withDist.slice(0, 3);
-            const html = top3.map((p, i) => `
-                <div class="place-card bg-white px-4 py-4">
-                    <div class="flex justify-between items-start">
-                        <div class="flex-1">
-                            <div class="flex items-center gap-2">
-                                <span class="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded">${i + 1}</span>
-                                <h3 class="font-medium text-gray-900">${p.name}</h3>
-                            </div>
-                            <p class="text-sm text-gray-500 mt-1">${p.address}</p>
-                            <p class="text-sm text-gray-600 mt-2">${p.desc}</p>
-                            <div class="flex items-center gap-4 mt-2 text-xs">
-                                <span class="text-green-600">安静指数: ${getQuietStars(p.quiet)}</span>
-                                <span class="text-gray-500">最佳时段: ${p.time}</span>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-lg font-semibold text-blue-600">${p.dist.toFixed(1)}km</p>
-                            <a href="https://uri.amap.com/navigation?to=${p.lng},${p.lat},${encodeURIComponent(p.name)}&mode=car&coordinate=gaode" 
-                               onclick="return openAmap('${p.name}', ${p.lat}, ${p.lng});"
-                               class="inline-block mt-2 bg-blue-500 text-white text-xs px-3 py-1.5 rounded">导航</a>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-            
-            document.getElementById('places-list').innerHTML = html;
+        function getQuietColor(level) {
+            if (level >= 5) return 'blue';
+            if (level >= 4) return 'green';
+            if (level >= 3) return 'yellow';
+            return 'red';
         }
 
-        function getLocation() {
-            document.getElementById('location-status').textContent = '正在定位...';
-            document.getElementById('loc-dot').classList.add('animate-pulse');
+        function enterMap() {
+            document.getElementById('home').style.display = 'none';
+            document.getElementById('mapPage').classList.add('active');
             
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const lat = position.coords.latitude;
-                        const lng = position.coords.longitude;
-                        document.getElementById('location-status').textContent = `已定位: ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-                        document.getElementById('loc-dot').classList.remove('animate-pulse');
-                        renderPlaces(lat, lng);
-                    },
-                    (error) => {
-                        document.getElementById('location-status').textContent = '定位失败，使用默认位置(天河区)';
-                        document.getElementById('loc-dot').classList.remove('animate-pulse');
-                        renderPlaces(23.1291, 113.2644);
-                    }
+                    pos => initMap(pos.coords.latitude, pos.coords.longitude),
+                    err => initMap(23.1291, 113.2644)
                 );
             } else {
-                document.getElementById('location-status').textContent = '浏览器不支持定位，使用默认位置';
-                renderPlaces(23.1291, 113.2644);
+                initMap(23.1291, 113.2644);
             }
         }
 
-        // 打开高德地图（支持iOS和Android）
-        function openAmap(name, lat, lng) {
-            const encodedName = encodeURIComponent(name);
-            // iOS 高德地图协议
-            const iosUrl = `iosamap://path?sourceApplication=反打卡地图&dlat=${lat}&dlon=${lng}&dname=${encodedName}&dev=0&m=0&t=0`;
-            // Android 高德地图协议
-            const androidUrl = `amapuri://route/plan/?dlat=${lat}&dlon=${lng}&dname=${encodedName}&dev=0&t=0`;
-            // 网页版兜底
-            const webUrl = `https://uri.amap.com/navigation?to=${lng},${lat},${encodedName}&mode=car&coordinate=gaode`;
-            
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-            const url = isIOS ? iosUrl : androidUrl;
-            
-            // 尝试打开App，如果失败则跳转网页版
-            window.location.href = url;
-            setTimeout(() => {
-                window.location.href = webUrl;
-            }, 500);
-            
-            return false;
+        function backHome() {
+            document.getElementById('home').style.display = 'flex';
+            document.getElementById('mapPage').classList.remove('active');
         }
 
-        // Safari定位权限处理
-        function requestLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const lat = position.coords.latitude;
-                        const lng = position.coords.longitude;
-                        document.getElementById('location-status').textContent = `已定位`;
-                        document.getElementById('loc-dot').classList.remove('animate-pulse');
-                        renderPlaces(lat, lng);
-                    },
-                    (error) => {
-                        let msg = '定位失败';
-                        if (error.code === 1) msg = '请允许定位权限';
-                        else if (error.code === 2) msg = '无法获取位置';
-                        else if (error.code === 3) msg = '定位超时';
-                        
-                        document.getElementById('location-status').textContent = msg + '，使用默认位置';
-                        document.getElementById('loc-dot').classList.remove('animate-pulse');
-                        renderPlaces(23.1291, 113.2644);
-                    },
-                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-                );
-            } else {
-                document.getElementById('location-status').textContent = '浏览器不支持定位';
-                renderPlaces(23.1291, 113.2644);
-            }
+        function initMap(lat, lng) {
+            userLocation = { lat, lng };
+            
+            // 过滤步行10分钟内的地点
+            const nearby = places.map(p => {
+                const dist = getDistance(lat, lng, p.lat, p.lng);
+                const walkTime = getWalkTime(dist);
+                return { ...p, dist, walkTime };
+            }).filter(p => p.walkTime <= 10).sort((a, b) => a.walkTime - b.walkTime);
+
+            // 初始化地图
+            map = new AMap.Map('map', {
+                center: [lng, lat],
+                zoom: 15,
+                mapStyle: 'amap://styles/dark'
+            });
+
+            // 添加用户位置标记
+            new AMap.Marker({
+                position: [lng, lat],
+                map: map,
+                icon: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_b.png'
+            });
+
+            // 添加马赛克色块
+            const mosaicLayer = document.getElementById('mosaicLayer');
+            nearby.forEach((p, i) => {
+                const pixel = map.lngLatToContainer([p.lng, p.lat]);
+                const block = document.createElement('div');
+                block.className = `mosaic-block mosaic-${getQuietColor(p.quiet)}`;
+                block.style.left = pixel.getX() - 20 + 'px';
+                block.style.top = pixel.getY() - 20 + 'px';
+                block.style.width = '40px';
+                block.style.height = '40px';
+                block.onclick = () => showPlace(p);
+                mosaicLayer.appendChild(block);
+
+                // 添加地图标记
+                const marker = new AMap.Marker({
+                    position: [p.lng, p.lat],
+                    map: map,
+                    content: `<div style="background:#1e40af;color:#fff;padding:4px 8px;border-radius:4px;font-size:12px;">
+                        ${p.walkTime}分钟
+                    </div>`
+                });
+                marker.on('click', () => showPlace(p));
+            });
         }
 
-        // 页面加载时请求定位（Safari需要用户交互才能触发）
-        document.addEventListener('click', function init() {
-            requestLocation();
-            document.removeEventListener('click', init);
-        }, { once: true });
-        
-        // 自动尝试一次
-        requestLocation();
+        function showPlace(p) {
+            document.getElementById('placeName').textContent = p.name;
+            document.getElementById('walkTime').textContent = p.walkTime;
+            document.getElementById('distance').textContent = p.dist.toFixed(1);
+            document.getElementById('quietLevel').textContent = '★'.repeat(p.quiet);
+            document.getElementById('placeCard').style.display = 'block';
+            
+            document.getElementById('walkBtn').onclick = () => {
+                window.location.href = `https://uri.amap.com/navigation?to=${p.lng},${p.lat},${p.name}&mode=walk&coordinate=gaode`;
+            };
+        }
     </script>
 </body>
 </html>
