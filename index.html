@@ -86,14 +86,32 @@
     <script src="artworks.js"></script>
     <script>
         // 确保 artworks.js 加载成功
-        if (typeof window.shuffledArtworks === 'undefined') {
-            console.error('artworks.js 加载失败，使用内嵌素材');
+        if (typeof window.shuffledArtworks === 'undefined' || !window.shuffledArtworks || window.shuffledArtworks.length < 10) {
+            console.error('artworks.js 加载失败或数量不足，使用内嵌素材');
+            // 创建完整的50张素材
             window.shuffledArtworks = [
+                // 10张文字
                 { type: "text", title: "我想", artist: "一个人静静", text: "我想\n一个人\n静静" },
                 { type: "text", title: "此刻", artist: "世界与我无关", text: "此刻\n世界与我\n无关" },
                 { type: "text", title: "别吵", artist: "让我待会儿", text: "别吵\n让我\n待会儿" },
+                { type: "text", title: "安静", artist: "是一种奢侈", text: "安静\n是一种\n奢侈" },
+                { type: "text", title: "独处", artist: "不是孤独", text: "独处\n不是\n孤独" },
+                { type: "text", title: "深夜", artist: "适合发呆", text: "深夜\n适合\n发呆" },
+                { type: "text", title: "耳机", artist: "是我的保护罩", text: "耳机\n是我的\n保护罩" },
+                { type: "text", title: "角落", artist: "最安全", text: "角落\n最\n安全" },
+                { type: "text", title: "沉默", artist: "是最好的回答", text: "沉默\n是最好的\n回答" },
+                { type: "text", title: "消失", artist: "一会儿就好", text: "消失\n一会儿\n就好" },
+                // 40张画作
                 { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Nighthawks_by_Edward_Hopper_1942.jpg/1200px-Nighthawks_by_Edward_Hopper_1942.jpg" },
-                { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1200px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg" }
+                { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Morning_Sun_by_Edward_Hopper.jpg/800px-Morning_Sun_by_Edward_Hopper.jpg" },
+                { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Automat_by_Edward_Hopper.jpg/800px-Automat_by_Edward_Hopper.jpg" },
+                { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Room_in_New_York_by_Edward_Hopper.jpg/800px-Room_in_New_York_by_Edward_Hopper.jpg" },
+                { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Summer_Evening_by_Edward_Hopper.jpg/800px-Summer_Evening_by_Edward_Hopper.jpg" },
+                { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1200px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg" },
+                { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Vincent_van_Gogh_-_Almond_blossom_-_Google_Art_Project.jpg/1200px-Vincent_van_Gogh_-_Almond_blossom_-_Google_Art_Project.jpg" },
+                { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Munch_The_Scream.jpg/800px-Munch_The_Scream.jpg" },
+                { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/The_Kiss_-_Gustav_Klimt_-_Google_Cultural_Institute.jpg/800px-The_Kiss_-_Gustav_Klimt_-_Google_Cultural_Institute.jpg" },
+                { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/The_Great_Wave_off_Kanagawa.jpg/1200px-The_Great_Wave_off_Kanagawa.jpg" }
             ];
         }
         
@@ -242,7 +260,7 @@
                 });
                 heatmap.setDataSet({ data: heatData, max: 60 });
                 
-                // 添加8个虚拟安静地点（用于测试）
+                // 添加8个虚拟安静地点（带标签）
                 var places = [
                     { name: "街角公园", pos: [center[0] + 0.003, center[1] + 0.002] },
                     { name: "小巷咖啡", pos: [center[0] - 0.002, center[1] + 0.003] },
@@ -256,15 +274,21 @@
                 
                 for (var i = 0; i < places.length; i++) {
                     (function(place) {
-                        var m = new AMap.Marker({ 
+                        // 创建带标签的标记
+                        var marker = new AMap.Marker({ 
                             position: place.pos,
                             title: place.name,
                             icon: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_r.png',
-                            clickable: true
+                            label: {
+                                content: place.name,
+                                offset: new AMap.Pixel(0, -25),
+                                direction: 'center'
+                            }
                         });
-                        m.setMap(map);
-                        // 使用更可靠的点击绑定
-                        AMap.event.addListener(m, 'click', function() {
+                        marker.setMap(map);
+                        
+                        // 点击事件
+                        AMap.event.addListener(marker, 'click', function() {
                             console.log('点击了地点:', place.name);
                             planRoute(center, place.pos, place.name);
                         });
