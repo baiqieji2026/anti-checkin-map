@@ -82,71 +82,136 @@
         .map-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; transform: scale(0.95); transition: opacity 0.6s ease, transform 0.6s ease; background: #0a0a0a; overflow: hidden; }
         .map-page.active { opacity: 1; transform: scale(1); }
         
-        /* Game Boy 风格地图 */
-        .gb-map-container {
+        /* 简化地图 - 打车软件风格 */
+        .map-page { 
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            opacity: 0; 
+            transform: scale(0.95); 
+            transition: opacity 0.6s ease, transform 0.6s ease; 
+            background: #1a1a2e; 
+            overflow: hidden; 
+        }
+        .map-page.active { opacity: 1; transform: scale(1); }
+        
+        /* 全屏地图容器 */
+        .simple-map {
             position: absolute;
-            top: 50%;
-            left: 50%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-template-rows: repeat(16, 1fr);
+        }
+        
+        .heat-cell {
+            width: 100%; height: 100%;
+        }
+        
+        /* 热力图颜色 - 蓝色系，越蓝越安静 */
+        .heat-5 { background: #1e3a8a; } /* 深蓝 - 极少人 */
+        .heat-4 { background: #3b82f6; } /* 蓝 - 安静 */
+        .heat-3 { background: #60a5fa; } /* 浅蓝 - 中等 */
+        .heat-2 { background: #1f2937; } /* 灰 - 热闹 */
+        .heat-1 { background: #111827; } /* 深灰 - 拥挤 */
+        
+        /* 用户位置标记 - 像打车软件 */
+        .user-location {
+            position: absolute;
+            top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            background: #0f380f;
-            padding: 20px;
+            z-index: 100;
+        }
+        
+        .user-dot {
+            width: 20px; height: 20px;
+            background: #fff;
+            border: 3px solid #3b82f6;
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+            animation: user-pulse 2s infinite;
+        }
+        
+        @keyframes user-pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
+            50% { transform: scale(1.1); box-shadow: 0 0 30px rgba(59, 130, 246, 0.8); }
+        }
+        
+        /* 定位指示器 */
+        .location-ring {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px; height: 60px;
+            border: 2px solid rgba(59, 130, 246, 0.3);
+            border-radius: 50%;
+            animation: ring-expand 2s infinite;
+        }
+        
+        @keyframes ring-expand {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+        }
+        
+        /* 顶部信息栏 */
+        .map-header {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            padding: 50px 20px 20px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+            z-index: 50;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        
+        .back-btn-simple {
+            width: 40px; height: 40px;
+            background: rgba(0,0,0,0.6);
+            border: none;
+            border-radius: 50%;
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .location-status {
+            background: rgba(0,0,0,0.6);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #9ca3af;
+        }
+        
+        /* 底部图例 - 极简 */
+        .simple-legend {
+            position: absolute;
+            bottom: 30px;
+            left: 20px;
+            z-index: 50;
+            background: rgba(0,0,0,0.7);
+            padding: 12px 16px;
             border-radius: 8px;
-            box-shadow: 
-                0 0 0 4px #306230,
-                0 0 0 8px #0f380f,
-                0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            gap: 16px;
         }
         
-        .pixel-map { 
-            display: grid; 
-            grid-template-columns: repeat(20, 1fr); 
-            gap: 0; 
-            width: 320px; 
-            height: 320px;
-            background: #0f380f;
-            image-rendering: pixelated;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.3);
+        .legend-simple-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: #9ca3af;
         }
         
-        .pixel-cell { 
-            width: 16px; 
-            height: 16px; 
-            image-rendering: pixelated;
+        .legend-color {
+            width: 12px; height: 12px;
+            border-radius: 2px;
         }
-        
-        /* Game Boy 风格调色板 - 深色版 */
-        .cell-quiet-5 { background: #8bac0f; } /* 最浅绿 - 人最少 */
-        .cell-quiet-4 { background: #306230; } /* 中绿 - 安静 */
-        .cell-quiet-3 { background: #0f380f; } /* 深绿 - 中等 */
-        .cell-quiet-2 { background: #1a1a2e; } /* 暗色 - 热闹 */
-        .cell-quiet-1 { background: #000000; } /* 黑色 - 避开 */
-        .cell-empty { background: #0f380f; }    /* 背景绿 */
-        
-        /* 像素边框效果 */
-        .pixel-cell::after {
-            content: '';
-            display: block;
-            width: 100%;
-            height: 100%;
-            border: 1px solid rgba(0,0,0,0.1);
-        }
-        
-        .user-marker { position: absolute; width: 14px; height: 14px; background: #fff; border: 2px solid #3b82f6; border-radius: 50%; z-index: 20; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.1); } }
-        
-        .back-btn { position: absolute; top: 50px; left: 20px; z-index: 30; padding: 10px 20px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 12px; cursor: pointer; }
-        
-        .legend { position: absolute; bottom: 30px; left: 20px; right: 20px; z-index: 30; background: rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 16px; }
-        .legend-title { font-size: 11px; color: #6b7280; margin-bottom: 10px; letter-spacing: 1px; }
-        .legend-items { display: flex; justify-content: space-between; }
-        .legend-item { display: flex; align-items: center; gap: 6px; font-size: 10px; color: #9ca3af; }
-        .legend-dot { width: 10px; height: 10px; border-radius: 2px; }
-        
-        .place-card { position: absolute; bottom: 120px; left: 20px; right: 20px; background: rgba(0,0,0,0.95); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; z-index: 25; display: none; }
-        .place-card.show { display: block; animation: slide-up 0.3s ease; }
-        @keyframes slide-up { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .place-name { font-size: 16px; color: #fff; margin-bottom: 8px; }
-        .place-info { display: flex; gap: 20px; font-size: 12px; color: #9ca3af; margin-bottom: 16px; }
         .btn-navigate { width: 100%; padding: 14px; background: #1e3a8a; border: none; border-radius: 8px; color: #fff; font-size: 14px; cursor: pointer; }
     </style>
 </head>
@@ -170,29 +235,35 @@
 
     <!-- 地图页 -->
     <div class="map-page" id="mapPage">
-        <button class="back-btn" onclick="backHome()">← 返回</button>
-        <div class="gb-map-container">
-            <div class="pixel-map" id="pixelMap"></div>
-        </div>
-        <div class="user-marker" id="userMarker" style="display:none; left:50%; top:50%;"></div>
-        
-        <div class="legend">
-            <div class="legend-title">安静指数</div>
-            <div class="legend-items">
-                <div class="legend-item"><div class="legend-dot" style="background:#1e3a8a"></div><span>极少</span></div>
-                <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div><span>安静</span></div>
-                <div class="legend-item"><div class="legend-dot" style="background:#059669"></div><span>中等</span></div>
-                <div class="legend-item"><div class="legend-dot" style="background:#d97706"></div><span>热闹</span></div>
-            </div>
+        <!-- 顶部栏 -->
+        <div class="map-header">
+            <button class="back-btn-simple" onclick="backHome()">←</button>
+            <div class="location-status" id="locationStatus">正在定位...</div>
         </div>
         
-        <div class="place-card" id="placeCard">
-            <div class="place-name" id="placeName"></div>
-            <div class="place-info">
-                <span id="walkTime"></span>
-                <span id="distance"></span>
+        <!-- 热力图 -->
+        <div class="simple-map" id="simpleMap"></div>
+        
+        <!-- 用户位置（固定在中心） -->
+        <div class="user-location">
+            <div class="location-ring"></div>
+            <div class="user-dot"></div>
+        </div>
+        
+        <!-- 底部图例 -->
+        <div class="simple-legend">
+            <div class="legend-simple-item">
+                <div class="legend-color" style="background:#1e3a8a"></div>
+                <span>极少</span>
             </div>
-            <button class="btn-navigate" id="navBtn">步行前往</button>
+            <div class="legend-simple-item">
+                <div class="legend-color" style="background:#3b82f6"></div>
+                <span>安静</span>
+            </div>
+            <div class="legend-simple-item">
+                <div class="legend-color" style="background:#1f2937"></div>
+                <span>热闹</span>
+            </div>
         </div>
     </div>
 
@@ -321,30 +392,33 @@
         }
 
         function renderMap() {
-            const grid = document.getElementById('pixelMap');
+            const grid = document.getElementById('simpleMap');
             const nearby = places.map(p => {
                 const dist = getDistance(userLocation.lat, userLocation.lng, p.lat, p.lng);
                 return { ...p, dist, walkTime: getWalkTime(dist) };
             }).filter(p => p.walkTime <= 10).sort((a, b) => a.walkTime - b.walkTime);
             
+            // 更新定位状态
+            document.getElementById('locationStatus').textContent = '已定位';
+            
             grid.innerHTML = '';
             
-            // 20x20 = 400个像素格子（Game Boy风格）
-            for (let i = 0; i < 400; i++) {
+            // 12x16 = 192个格子，全屏热力图
+            for (let i = 0; i < 192; i++) {
                 const cell = document.createElement('div');
-                cell.className = 'pixel-cell';
+                cell.className = 'heat-cell';
                 
-                const row = Math.floor(i / 20);
-                const col = i % 20;
+                const row = Math.floor(i / 12);
+                const col = i % 12;
                 
-                // 计算这个格子与各个地点的距离
+                // 计算与地点的距离
                 let minDist = Infinity;
-                let nearestQuiet = 1;
+                let nearestQuiet = 3;
                 
                 nearby.forEach(p => {
-                    const pRow = 10 + Math.floor((p.lat - userLocation.lat) * 400);
-                    const pCol = 10 + Math.floor((p.lng - userLocation.lng) * 400);
-                    const d = Math.abs(row - pRow) + Math.abs(col - pCol);
+                    const pRow = 8 + Math.floor((p.lat - userLocation.lat) * 200);
+                    const pCol = 6 + Math.floor((p.lng - userLocation.lng) * 200);
+                    const d = Math.sqrt((row - pRow) ** 2 + (col - pCol) ** 2);
                     if (d < minDist) {
                         minDist = d;
                         nearestQuiet = p.quiet;
@@ -352,59 +426,25 @@
                 });
                 
                 // 根据距离衰减
-                let quietLevel = nearestQuiet;
-                if (minDist > 2) quietLevel = Math.max(1, quietLevel - 1);
-                if (minDist > 5) quietLevel = Math.max(1, quietLevel - 1);
+                let heatLevel = nearestQuiet;
+                if (minDist > 2) heatLevel = Math.max(2, heatLevel - 1);
+                if (minDist > 4) heatLevel = Math.max(1, heatLevel - 1);
                 
-                // 中心区域（用户位置）周围是空的
-                const centerRow = 10;
-                const centerCol = 10;
-                const distToCenter = Math.abs(row - centerRow) + Math.abs(col - centerCol);
+                // 中心区域（用户位置）
+                const centerRow = 8;
+                const centerCol = 6;
+                const distToCenter = Math.sqrt((row - centerRow) ** 2 + (col - centerCol) ** 2);
                 
                 if (distToCenter <= 1) {
-                    cell.classList.add('cell-empty');
-                } else if (nearbyPlaces.length === 0 || minDist > 8) {
-                    cell.classList.add('cell-empty');
+                    cell.classList.add('heat-5'); // 用户所在位置最安静
+                } else if (nearby.length === 0 || minDist > 6) {
+                    cell.classList.add('heat-3'); // 默认中等
                 } else {
-                    cell.classList.add(`cell-quiet-${quietLevel}`);
+                    cell.classList.add(`heat-${heatLevel}`);
                 }
                 
                 grid.appendChild(cell);
             }
-            
-            // 用户位置标记（中心）- Game Boy风格
-            const userMarker = document.createElement('div');
-            userMarker.style.cssText = 'position:absolute;width:12px;height:12px;background:#9bbc0f;border:2px solid #0f380f;z-index:20;left:50%;top:50%;transform:translate(-50%,-50%);image-rendering:pixelated;box-shadow:0 0 0 2px #8bac0f;';
-            grid.appendChild(userMarker);
-            
-            nearby.forEach(p => {
-                const marker = document.createElement('div');
-                marker.style.cssText = `position:absolute;transform:translate(-50%,-50%);z-index:15;cursor:pointer;`;
-                const offsetY = (userLocation.lat - p.lat) * 8000;
-                const offsetX = (p.lng - userLocation.lng) * 8000;
-                marker.style.left = `calc(50% + ${offsetX}px)`;
-                marker.style.top = `calc(50% + ${offsetY}px)`;
-                // Game Boy风格颜色
-                const colors = { 5: '#9bbc0f', 4: '#8bac0f' };
-                marker.innerHTML = `<div style="width:10px;height:10px;background:${colors[p.quiet]};border:2px solid #0f380f;image-rendering:pixelated;"
-                    ></div>
-                    <div style="position:absolute;top:12px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:9px;color:#9bbc0f;background:#0f380f;padding:2px 4px;image-rendering:pixelated;"
-                    >${p.walkTime}分</div>`;
-                marker.onclick = () => showPlace(p);
-                grid.appendChild(marker);
-            });
-        }
-
-        function showPlace(p) {
-            document.getElementById('placeName').textContent = p.name;
-            document.getElementById('walkTime').textContent = `步行 ${p.walkTime}分钟`;
-            document.getElementById('distance').textContent = `${p.dist.toFixed(1)}km`;
-            document.getElementById('placeCard').classList.add('show');
-            
-            document.getElementById('navBtn').onclick = () => {
-                const name = encodeURIComponent(p.name);
-                window.location.href = `https://uri.amap.com/navigation?to=${p.lng},${p.lat},${name}&mode=walk&coordinate=gaode`;
-            };
         }
 
         // 初始化
