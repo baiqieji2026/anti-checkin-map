@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>我想静静</title>
+    <script src="https://webapi.amap.com/maps?v=2.0&key=f987015a56c3e1f3e64d8364fa9844c4"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, sans-serif; overflow: hidden; }
         
         /* 首页 */
-        .home { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; transition: opacity 0.8s ease; }
+        .home { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; transition: opacity 0.8s ease; background: #000; }
         .home.fade-out { opacity: 0; pointer-events: none; }
         .gallery-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; transition: opacity 1s ease; }
         .gallery-bg.fade { opacity: 0; }
@@ -25,14 +25,14 @@
         .indicator.active { background: rgba(255,255,255,0.8); transform: scale(1.2); }
         
         /* 地图页 */
-        .map-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; transform: scale(0.95); transition: opacity 0.6s ease, transform 0.6s ease; background: #f5f5f5; overflow: hidden; }
+        .map-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; transform: scale(0.95); transition: opacity 0.6s ease, transform 0.6s ease; overflow: hidden; }
         .map-page.active { opacity: 1; transform: scale(1); }
-        #appleMap { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-        .map-header { position: absolute; top: 0; left: 0; right: 0; padding: 50px 20px 20px; background: linear-gradient(180deg, rgba(255,255,255,0.9) 0%, transparent 100%); z-index: 50; display: flex; justify-content: space-between; align-items: flex-start; }
-        .back-btn-simple { width: 40px; height: 40px; background: rgba(255,255,255,0.9); border: none; border-radius: 50%; color: #333; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .location-status { background: rgba(255,255,255,0.9); padding: 8px 16px; border-radius: 20px; font-size: 12px; color: #666; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .map-legend { position: absolute; bottom: 30px; left: 20px; right: 20px; z-index: 50; background: rgba(255,255,255,0.95); padding: 16px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
-        .legend-title { font-size: 13px; color: #333; margin-bottom: 12px; font-weight: 500; }
+        #gaodeMap { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        .map-header { position: absolute; top: 0; left: 0; right: 0; padding: 50px 20px 20px; background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, transparent 100%); z-index: 50; display: flex; justify-content: space-between; align-items: flex-start; }
+        .back-btn-simple { width: 40px; height: 40px; background: rgba(255,255,255,0.95); border: none; border-radius: 50%; color: #333; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(0,0,0,0.15); }
+        .location-status { background: rgba(255,255,255,0.95); padding: 8px 16px; border-radius: 20px; font-size: 12px; color: #666; box-shadow: 0 2px 10px rgba(0,0,0,0.15); }
+        .map-legend { position: absolute; bottom: 30px; left: 20px; right: 20px; z-index: 50; background: rgba(255,255,255,0.98); padding: 16px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+        .legend-title { font-size: 13px; color: #333; margin-bottom: 12px; font-weight: 600; }
         .legend-items { display: flex; gap: 16px; }
         .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #666; }
         .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
@@ -57,7 +57,7 @@
             <button class="back-btn-simple" onclick="backHome()">←</button>
             <div class="location-status" id="locationStatus">正在定位...</div>
         </div>
-        <iframe id="appleMap" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+        <div id="gaodeMap"></div>
         <div class="map-legend">
             <div class="legend-title">人流密度</div>
             <div class="legend-items">
@@ -70,17 +70,17 @@
 
     <script>
         const artworks = [
-            { title: "深夜的窗", artist: "Edward Hopper 风格", url: "https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=800&q=80" },
-            { title: "空房间", artist: "Vilhelm Hammershøi 风格", url: "https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800&q=80" },
-            { title: "雾中公园", artist: "静谧时刻", url: "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=800&q=80" },
-            { title: "深夜街道", artist: "城市孤独", url: "https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=800&q=80" },
-            { title: "晨光海边", artist: "独处时光", url: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800&q=80" },
-            { title: "雨夜窗景", artist: "静谧时刻", url: "https://images.unsplash.com/photo-1515169067868-5387ec356754?w=800&q=80" },
-            { title: "空旷楼梯", artist: "空间与孤独", url: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80" },
-            { title: "黄昏岸边", artist: "独处时光", url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80" },
+            { title: "深夜的窗", artist: "静谧", url: "https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=800&q=80" },
+            { title: "空房间", artist: "独处", url: "https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800&q=80" },
+            { title: "雾中公园", artist: "宁静", url: "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=800&q=80" },
+            { title: "深夜街道", artist: "孤独", url: "https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=800&q=80" },
+            { title: "晨光海边", artist: "安静", url: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800&q=80" },
+            { title: "雨夜窗景", artist: "沉思", url: "https://images.unsplash.com/photo-1515169067868-5387ec356754?w=800&q=80" },
+            { title: "空旷楼梯", artist: "空间", url: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80" },
+            { title: "黄昏岸边", artist: "独处", url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80" },
         ];
 
-        let currentArtwork = 0, galleryInterval;
+        let currentArtwork = 0, galleryInterval, map = null;
 
         function initGallery() {
             const bg = document.getElementById('galleryBg'), indicators = document.getElementById('indicators');
@@ -97,25 +97,51 @@
 
         function enterMap() {
             clearInterval(galleryInterval); document.getElementById('home').classList.add('fade-out');
-            setTimeout(() => { document.getElementById('mapPage').classList.add('active'); initAppleMap(); }, 400);
+            setTimeout(() => { document.getElementById('mapPage').classList.add('active'); initGaodeMap(); }, 400);
         }
 
-        function backHome() { document.getElementById('mapPage').classList.remove('active'); document.getElementById('home').classList.remove('fade-out'); galleryInterval = setInterval(nextArtwork, 5000); }
+        function backHome() { 
+            document.getElementById('mapPage').classList.remove('active'); 
+            document.getElementById('home').classList.remove('fade-out'); 
+            galleryInterval = setInterval(nextArtwork, 5000); 
+        }
 
-        function initAppleMap() {
+        function initGaodeMap() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(pos => {
                     const lat = pos.coords.latitude, lng = pos.coords.longitude;
                     document.getElementById('locationStatus').textContent = '已定位';
-                    // 使用苹果地图URL scheme
-                    const mapUrl = `https://maps.apple.com/?ll=${lat},${lng}&z=15&t=m`;
-                    document.getElementById('appleMap').src = mapUrl;
+                    
+                    // 初始化高德地图
+                    map = new AMap.Map('gaodeMap', {
+                        zoom: 15,
+                        center: [lng, lat],
+                        viewMode: '2D'
+                    });
+                    
+                    // 添加定位标记
+                    new AMap.Marker({
+                        position: [lng, lat],
+                        map: map,
+                        icon: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_b.png'
+                    });
+                    
                 }, err => {
                     // 默认广州
-                    document.getElementById('appleMap').src = 'https://maps.apple.com/?ll=23.1291,113.2644&z=15&t=m';
+                    document.getElementById('locationStatus').textContent = '默认位置';
+                    map = new AMap.Map('gaodeMap', {
+                        zoom: 15,
+                        center: [113.2644, 23.1291],
+                        viewMode: '2D'
+                    });
                 }, { enableHighAccuracy: true, timeout: 10000 });
             } else {
-                document.getElementById('appleMap').src = 'https://maps.apple.com/?ll=23.1291,113.2644&z=15&t=m';
+                document.getElementById('locationStatus').textContent = '不支持定位';
+                map = new AMap.Map('gaodeMap', {
+                    zoom: 15,
+                    center: [113.2644, 23.1291],
+                    viewMode: '2D'
+                });
             }
         }
 
