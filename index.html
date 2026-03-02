@@ -3,320 +3,194 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>我想静静</title>
     <script src="https://webapi.amap.com/maps?v=1.4.15&key=f987015a56c3e1f3e64d8364fa9844c4"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { width: 100%; height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+        html, body { width: 100%; height: 100%; overflow: hidden; font-family: -apple-system, sans-serif; }
         
         /* 首页 */
-        #home { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10; }
-        #galleryBg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transition: opacity 0.5s; }
-        #galleryBg.fade { opacity: 0; }
-        .text-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 32px; font-weight: 200; letter-spacing: 8px; line-height: 1.8; text-align: center; white-space: pre; }
+        #home { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; }
+        #gallery { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        #gallery img { width: 100%; height: 100%; object-fit: cover; }
+        #gallery .text { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 32px; text-align: center; white-space: pre; line-height: 1.8; }
         
-        .btn-wrap { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 100; pointer-events: none; }
-        .btn-quiet { pointer-events: auto; width: 160px; height: 160px; border-radius: 50%; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.5); color: #fff; font-size: 22px; font-weight: 200; letter-spacing: 8px; line-height: 1.5; cursor: pointer; animation: breathe 4s ease-in-out infinite; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
-        @keyframes breathe { 0%, 100% { box-shadow: 0 0 20px rgba(255,255,255,0.1); } 50% { box-shadow: 0 0 40px rgba(255,255,255,0.2); } }
+        .btn-quiet { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 160px; height: 160px; border-radius: 50%; background: rgba(0,0,0,0.6); border: 2px solid rgba(255,255,255,0.5); color: #fff; font-size: 22px; letter-spacing: 8px; line-height: 1.5; z-index: 100; }
         
         /* 地图页 */
-        #mapPage { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 20; display: none; }
-        #mapPage.active { display: block; }
+        #mapPage { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
+        #mapPage.show { display: block; }
         #gaodeMap { width: 100%; height: 100%; }
-        .back-btn { position: absolute; top: 50px; left: 16px; z-index: 30; width: 44px; height: 44px; background: #fff; border: none; border-radius: 50%; font-size: 20px; cursor: pointer; }
+        .back-btn { position: absolute; top: 50px; left: 16px; z-index: 100; width: 44px; height: 44px; border-radius: 50%; border: none; background: #fff; font-size: 20px; }
         
-        /* 底部卡片 - 滴滴风格 */
-        .bottom-card { position: absolute; bottom: 0; left: 0; right: 0; background: #fff; border-radius: 20px 20px 0 0; padding: 16px 20px 30px; z-index: 30; box-shadow: 0 -4px 20px rgba(0,0,0,0.1); }
-        .card-handle { width: 40px; height: 4px; background: #ddd; border-radius: 2px; margin: 0 auto 16px; }
-        .place-list { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid #f0f0f0; }
-        .place-tag { flex-shrink: 0; padding: 10px 18px; background: #f5f5f5; border-radius: 20px; font-size: 14px; color: #333; cursor: pointer; transition: all 0.2s; }
-        .place-tag:hover, .place-tag.active { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; }
-        
-        .route-info { display: none; padding: 16px; background: #f9f9f9; border-radius: 12px; margin-bottom: 12px; }
-        .route-info.show { display: flex; align-items: center; gap: 12px; }
-        .route-icon { width: 48px; height: 48px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 24px; }
-        .route-details { flex: 1; }
-        .route-dest { font-size: 16px; font-weight: 600; color: #333; margin-bottom: 4px; }
-        .route-meta { font-size: 13px; color: #999; }
-        .route-time { text-align: right; }
-        .time-val { font-size: 32px; font-weight: 700; color: #333; line-height: 1; }
-        .time-unit { font-size: 12px; color: #999; }
-        
-        .nav-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, #667eea, #764ba2); border: none; border-radius: 12px; color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; }
-        .nav-btn:disabled { background: #ccc; cursor: not-allowed; }
-        
-        .toast { position: fixed; top: 100px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: #fff; padding: 12px 24px; border-radius: 24px; font-size: 14px; z-index: 40; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
-        .toast.show { opacity: 1; }
+        .card { position: absolute; bottom: 0; left: 0; right: 0; background: #fff; border-radius: 20px 20px 0 0; padding: 20px; z-index: 100; }
+        .places { display: flex; gap: 10px; overflow-x: auto; margin-bottom: 10px; }
+        .place { padding: 10px 16px; background: #f0f0f0; border-radius: 20px; font-size: 14px; white-space: nowrap; }
+        .place.active { background: #667eea; color: #fff; }
+        .info { padding: 15px; background: #f5f5f5; border-radius: 10px; margin-bottom: 10px; display: none; }
+        .info.show { display: block; }
+        .nav-btn { width: 100%; padding: 15px; background: #667eea; color: #fff; border: none; border-radius: 10px; font-size: 16px; }
+        .nav-btn:disabled { background: #ccc; }
     </style>
 </head>
 <body>
-    <!-- 首页 -->
     <div id="home">
-        <div id="galleryBg"></div>
-        <div class="btn-wrap">
-            <button class="btn-quiet" onclick="enterMap()">我想<br>静静</button>
-        </div>
+        <div id="gallery"></div>
+        <button class="btn-quiet" onclick="goMap()">我想<br>静静</button>
     </div>
 
-    <!-- 地图页 -->
     <div id="mapPage">
-        <button class="back-btn" onclick="backHome()">←</button>
+        <button class="back-btn" onclick="goHome()">←</button>
         <div id="gaodeMap"></div>
-        <div class="bottom-card">
-            <div class="card-handle"></div>
-            <div class="place-list" id="placeList"></div>
-            <div class="route-info" id="routeInfo">
-                <div class="route-icon">🚶</div>
-                <div class="route-details">
-                    <div class="route-dest" id="routeDest"></div>
-                    <div class="route-meta" id="routeMeta"></div>
-                </div>
-                <div class="route-time">
-                    <div class="time-val" id="routeTime"></div>
-                    <div class="time-unit">分钟</div>
-                </div>
+        <div class="card">
+            <div class="places" id="places"></div>
+            <div class="info" id="info">
+                <div id="infoText"></div>
             </div>
-            <button class="nav-btn" id="navBtn" onclick="startNav()" disabled>选择目的地</button>
+            <button class="nav-btn" id="navBtn" disabled onclick="goNav()">选择目的地</button>
         </div>
     </div>
-    <div class="toast" id="toast"></div>
 
     <script>
-        // ===== 50张素材 (10文字 + 40画作) =====
-        var artworks = [
-            // 10张文字
-            {t:'tx',x:"我想\n一个人\n静静"},{t:'tx',x:"此刻\n世界与我\n无关"},{t:'tx',x:"别吵\n让我\n待会儿"},{t:'tx',x:"安静\n是一种\n奢侈"},{t:'tx',x:"独处\n不是\n孤独"},
-            {t:'tx',x:"深夜\n适合\n发呆"},{t:'tx',x:"耳机\n是我的\n保护罩"},{t:'tx',x:"角落\n最\n安全"},{t:'tx',x:"沉默\n是最好的\n回答"},{t:'tx',x:"消失\n一会儿\n就好"},
-            // 40张画作
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Nighthawks_by_Edward_Hopper_1942.jpg/1200px-Nighthawks_by_Edward_Hopper_1942.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Morning_Sun_by_Edward_Hopper.jpg/800px-Morning_Sun_by_Edward_Hopper.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Automat_by_Edward_Hopper.jpg/800px-Automat_by_Edward_Hopper.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Room_in_New_York_by_Edward_Hopper.jpg/800px-Room_in_New_York_by_Edward_Hopper.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Summer_Evening_by_Edward_Hopper.jpg/800px-Summer_Evening_by_Edward_Hopper.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1200px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Vincent_van_Gogh_-_Almond_blossom_-_Google_Art_Project.jpg/1200px-Vincent_van_Gogh_-_Almond_blossom_-_Google_Art_Project.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Vincent_van_Gogh_-_Wheat_Field_with_Cypresses_-_Google_Art_Project.jpg/1200px-Vincent_van_Gogh_-_Wheat_Field_with_Cypresses_-_Google_Art_Project.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Vincent_van_Gogh_-_Cafe_Terrace_at_Night_-_Google_Art_Project.jpg/1200px-Vincent_van_Gogh_-_Cafe_Terrace_at_Night_-_Google_Art_Project.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Munch_The_Scream.jpg/800px-Munch_The_Scream.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/The_Kiss_-_Gustav_Klimt_-_Google_Cultural_Institute.jpg/800px-The_Kiss_-_Gustav_Klimt_-_Google_Cultural_Institute.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/The_Great_Wave_off_Kanagawa.jpg/1200px-The_Great_Wave_off_Kanagawa.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Vermeer_View_of_Delft.jpg/1200px-Vermeer_View_of_Delft.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/The_Sleeping_Gypsy_by_Henri_Rousseau.jpg/1200px-The_Sleeping_Gypsy_by_Henri_Rousseau.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Caspar_David_Friedrich_-_Wanderer_above_the_Sea_of_Fog_-_Google_Art_Project.jpg/800px-Caspar_David_Friedrich_-_Wanderer_above_the_Sea_of_Fog_-_Google_Art_Project.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/en/thumb/5/5c/Sanyu_Pink_Chrisanthemums.jpg/800px-Sanyu_Pink_Chrisanthemums.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Solitude_%281887%29_by_William_Merritt_Chase.jpg/800px-Solitude_%281887%29_by_William_Merritt_Chase.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Vincent_van_Gogh_-_Self-portrait_with_grey_felt_hat_-_Google_Art_Project.jpg/800px-Vincent_van_Gogh_-_Self-portrait_with_grey_felt_hat_-_Google_Art_Project.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Pieter_Bruegel_the_Elder_-_The_Tower_of_Babel_%28Vienna%29_-_Google_Art_Project.jpg/1200px-Pieter_Bruegel_the_Elder_-_The_Tower_of_Babel_%28Vienna%29_-_Google_Art_Project.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Rembrandt_van_Rijn_-_The_Night_Watch_-_Google_Art_Project.jpg/1200px-Rembrandt_van_Rijn_-_The_Night_Watch_-_Google_Art_Project.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Henri_Matisse_-_The_Red_Studio_-_Google_Art_Project.jpg/1200px-Henri_Matisse_-_The_Red_Studio_-_Google_Art_Project.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Rene_Magritte_The_Son_of_Man.jpg/800px-Rene_Magritte_The_Son_of_Man.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Salvador_Dali_-_The_Persistence_of_Memory_-_Google_Art_Project.jpg/1200px-Salvador_Dali_-_The_Persistence_of_Memory_-_Google_Art_Project.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Edward_Hopper_-_Office_in_a_Small_City_-_Google_Art_Project.jpg/1200px-Edward_Hopper_-_Office_in_a_Small_City_-_Google_Art_Project.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Edward_Hopper_-_New_York_Movie_-_Google_Art_Project.jpg/1200px-Edward_Hopper_-_New_York_Movie_-_Google_Art_Project.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Edward_Hopper_-_Gas_-_Google_Art_Project.jpg/1200px-Edward_Hopper_-_Gas_-_Google_Art_Project.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Edward_Hopper_-_Cape_Cod_Evening_-_Google_Art_Project.jpg/1200px-Edward_Hopper_-_Cape_Cod_Evening_-_Google_Art_Project.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Edward_Hopper_-_People_in_the_Sun_-_Google_Art_Project.jpg/1200px-Edward_Hopper_-_People_in_the_Sun_-_Google_Art_Project.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Edward_Hopper_-_Compartment_C%2C_Car_293_-_Google_Art_Project.jpg/1200px-Edward_Hopper_-_Compartment_C%2C_Car_293_-_Google_Art_Project.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Edward_Hopper_-_Chop_Suey_-_Google_Art_Project.jpg/1200px-Edward_Hopper_-_Chop_Suey_-_Google_Art_Project.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Edward_Hopper_-_Tables_for_Ladies_-_Google_Art_Project.jpg/1200px-Edward_Hopper_-_Tables_for_Ladies_-_Google_Art_Project.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Edward_Hopper_-_The_Lighthouse_at_Two_Lights_-_Google_Art_Project.jpg/1200px-Edward_Hopper_-_The_Lighthouse_at_Two_Lights_-_Google_Art_Project.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Edward_Hopper_-_South_Truro_Church_-_Google_Art_Project.jpg/1200px-Edward_Hopper_-_South_Truro_Church_-_Google_Art_Project.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/The_Fighting_Temeraire%2C_JMW_Turner%2C_National_Gallery.jpg/1200px-The_Fighting_Temeraire%2C_JMW_Turner%2C_National_Gallery.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Millais_-_Ophelia_-_Google_Art_Project.jpg/1200px-Millais_-_Ophelia_-_Google_Art_Project.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Waterhouse_-_The_Lady_of_Shalott_-_Google_Art_Project.jpg/1200px-Waterhouse_-_The_Lady_of_Shalott_-_Google_Art_Project.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Edward_Hopper_-_Western_Motel_-_Google_Art_Project.jpg/1200px-Edward_Hopper_-_Western_Motel_-_Google_Art_Project.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Edward_Hopper_-_House_by_the_Railroad_-_Google_Art_Project.jpg/1200px-Edward_Hopper_-_House_by_the_Railroad_-_Google_Art_Project.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Vincent_Willem_van_Gogh_127.jpg/800px-Vincent_Willem_van_Gogh_127.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Vincent_van_Gogh_-_Irises_-_Google_Art_Project.jpg/1200px-Vincent_van_Gogh_-_Irises_-_Google_Art_Project.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Claude_Monet_-_Impression%2C_soleil_levant_-_Google_Art_Project.jpg/1200px-Claude_Monet_-_Impression%2C_soleil_levant_-_Google_Art_Project.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Pierre-Auguste_Renoir_-_Luncheon_of_the_Boating_Party_-_Google_Art_Project.jpg/1200px-Pierre-Auguste_Renoir_-_Luncheon_of_the_Boating_Party_-_Google_Art_Project.jpg"},
-            {t:'im',u:"https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Edgar_Degas_-_The_Dance_Class_-_Google_Art_Project.jpg/1200px-Edgar_Degas_-_The_Dance_Class_-_Google_Art_Project.jpg"}
+        // 20张素材
+        var items = [
+            {type:'text', content:'我想\n一个人\n静静'},
+            {type:'text', content:'此刻\n世界与我\n无关'},
+            {type:'text', content:'别吵\n让我\n待会儿'},
+            {type:'text', content:'安静\n是一种\n奢侈'},
+            {type:'text', content:'独处\n不是\n孤独'},
+            {type:'text', content:'深夜\n适合\n发呆'},
+            {type:'text', content:'耳机\n是我的\n保护罩'},
+            {type:'text', content:'角落\n最\n安全'},
+            {type:'text', content:'沉默\n是最好的\n回答'},
+            {type:'text', content:'消失\n一会儿\n就好'},
+            {type:'img', src:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Nighthawks_by_Edward_Hopper_1942.jpg/1200px-Nighthawks_by_Edward_Hopper_1942.jpg'},
+            {type:'img', src:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1200px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg'},
+            {type:'img', src:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Munch_The_Scream.jpg/800px-Munch_The_Scream.jpg'},
+            {type:'img', src:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/The_Kiss_-_Gustav_Klimt_-_Google_Cultural_Institute.jpg/800px-The_Kiss_-_Gustav_Klimt_-_Google_Cultural_Institute.jpg'},
+            {type:'img', src:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/The_Great_Wave_off_Kanagawa.jpg/1200px-The_Great_Wave_off_Kanagawa.jpg'},
+            {type:'img', src:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Vermeer_View_of_Delft.jpg/1200px-Vermeer_View_of_Delft.jpg'},
+            {type:'img', src:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/The_Sleeping_Gypsy_by_Henri_Rousseau.jpg/1200px-The_Sleeping_Gypsy_by_Henri_Rousseau.jpg'},
+            {type:'img', src:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Caspar_David_Friedrich_-_Wanderer_above_the_Sea_of_Fog_-_Google_Art_Project.jpg/800px-Caspar_David_Friedrich_-_Wanderer_above_the_Sea_of_Fog_-_Google_Art_Project.jpg'},
+            {type:'img', src:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Morning_Sun_by_Edward_Hopper.jpg/800px-Morning_Sun_by_Edward_Hopper.jpg'},
+            {type:'img', src:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Vincent_van_Gogh_-_Almond_blossom_-_Google_Art_Project.jpg/1200px-Vincent_van_Gogh_-_Almond_blossom_-_Google_Art_Project.jpg'}
         ];
-        
-        var cur=0,timer,map,userPos=null,route=null,dest=null,lastIdx=-1;
-        var bg=document.getElementById('galleryBg');
-        
-        function show(i){
-            var it=artworks[i];
-            bg.className='';
-            bg.innerHTML='';
-            if(it.t==='tx'){
-                bg.style.background='#0a0a0a';
-                bg.innerHTML='<div class="text-layer">'+it.x+'</div>';
-            }else{
-                bg.style.background='url('+it.u+') center/cover no-repeat #1a1a1a';
+
+        var idx = 0, timer, map, userPos, dest;
+
+        function showItem(i) {
+            var g = document.getElementById('gallery');
+            var it = items[i];
+            if (it.type === 'text') {
+                g.innerHTML = '<div class="text">' + it.content + '</div>';
+            } else {
+                g.innerHTML = '<img src="' + it.src + '" onerror="this.style.display=\'none\'">';
             }
         }
-        
-        function nxt(){
-            var ni;
-            do{ni=Math.floor(Math.random()*artworks.length);}while(ni===lastIdx && artworks.length>1);
-            cur=ni;lastIdx=ni;
-            show(cur);
+
+        function nextItem() {
+            idx = (idx + 1) % items.length;
+            showItem(idx);
         }
-        
-        function initGallery(){show(0);timer=setInterval(nxt,3000);}
-        
-        function enterMap(){
+
+        function startGallery() {
+            showItem(0);
+            timer = setInterval(nextItem, 3000);
+        }
+
+        function goMap() {
             clearInterval(timer);
-            document.getElementById('home').style.display='none';
-            document.getElementById('mapPage').className='active';
-            initMap();
+            document.getElementById('home').style.display = 'none';
+            document.getElementById('mapPage').className = 'show';
+            loadMap();
         }
-        
-        function backHome(){
-            document.getElementById('mapPage').className='';
-            document.getElementById('home').style.display='block';
-            if(route){route.clear();route=null;}
-            document.getElementById('routeInfo').className='route-info';
-            document.getElementById('navBtn').disabled=true;
-            document.getElementById('navBtn').textContent='选择目的地';
-            timer=setInterval(nxt,3000);
+
+        function goHome() {
+            document.getElementById('mapPage').className = '';
+            document.getElementById('home').style.display = 'block';
+            timer = setInterval(nextItem, 3000);
         }
-        
-        function showToast(msg){
-            var t=document.getElementById('toast');
-            t.textContent=msg;t.className='toast show';
-            setTimeout(function(){t.className='toast';},3000);
-        }
-        
-        function initMap(){
-            if(typeof AMap==='undefined'){
-                document.getElementById('gaodeMap').innerHTML='<div style="padding:100px;text-align:center;color:#666;">地图加载失败</div>';
+
+        function loadMap() {
+            if (typeof AMap === 'undefined') {
+                document.getElementById('gaodeMap').innerHTML = '<div style="padding:100px;text-align:center">地图加载失败</div>';
                 return;
             }
-            
-            // 加载定位插件
-            AMap.plugin(['AMap.Geolocation'],function(){
-                var geo=new AMap.Geolocation({enableHighAccuracy:true,timeout:10000,zoomToAccuracy:true});
-                geo.getCurrentPosition(function(status,result){
-                    if(status==='complete'&&result.position){
-                        userPos=[result.position.getLng(),result.position.getLat()];
-                        createMap(userPos);
-                    }else{
-                        userPos=[113.2644,23.1291];
-                        createMap(userPos);
-                    }
-                });
+
+            // 默认位置
+            userPos = [113.2644, 23.1291];
+
+            map = new AMap.Map('gaodeMap', {
+                zoom: 15,
+                center: userPos
             });
-        }
-        
-        function createMap(center){
-            map=new AMap.Map('gaodeMap',{zoom:15,center:center,mapStyle:'amap://styles/dark'});
-            
-            // 用户位置标记
-            new AMap.Marker({position:center,map:map,icon:'https://webapi.amap.com/theme/v1.3/markers/n/mark_b.png',title:'我的位置'});
-            
-            // 8个虚拟地点
-            var places=[
-                {n:"街角公园",p:[center[0]+0.003,center[1]+0.002]},{n:"小巷咖啡",p:[center[0]-0.002,center[1]+0.003]},
-                {n:"河边长椅",p:[center[0]+0.001,center[1]-0.003]},{n:"老书店",p:[center[0]-0.003,center[1]-0.001]},
-                {n:"安静角落",p:[center[0]+0.0025,center[1]+0.0015]},{n:"树荫下",p:[center[0]-0.0015,center[1]-0.0025]},
-                {n:"天台花园",p:[center[0]+0.001,center[1]+0.0025]},{n:"隐秘庭院",p:[center[0]-0.0025,center[1]+0.001]}
+
+            // 我的位置
+            new AMap.Marker({
+                position: userPos,
+                map: map,
+                title: '我的位置'
+            });
+
+            // 虚拟地点
+            var places = [
+                {name: '街角公园', pos: [userPos[0] + 0.003, userPos[1] + 0.002]},
+                {name: '小巷咖啡', pos: [userPos[0] - 0.002, userPos[1] + 0.003]},
+                {name: '河边长椅', pos: [userPos[0] + 0.001, userPos[1] - 0.003]},
+                {name: '老书店', pos: [userPos[0] - 0.003, userPos[1] - 0.001]}
             ];
-            
-            var pl=document.getElementById('placeList');pl.innerHTML='';
-            
-            for(var i=0;i<places.length;i++){
-                (function(j){
-                    // 地图标记
-                    var m=new AMap.Marker({
-                        position:places[j].p,
-                        map:map,
-                        icon:'https://webapi.amap.com/theme/v1.3/markers/n/mark_r.png',
-                        label:{content:places[j].n,offset:new AMap.Pixel(0,-28),direction:'center'}
-                    });
-                    
-                    // 底部标签
-                    var t=document.createElement('div');
-                    t.className='place-tag';
-                    t.textContent=places[j].n;
-                    t.onclick=function(){
-                        document.querySelectorAll('.place-tag').forEach(function(el){el.className='place-tag';});
-                        t.className='place-tag active';
-                        planRoute(center,places[j].p,places[j].n);
-                    };
-                    pl.appendChild(t);
-                    
-                    // 标记点击
-                    m.on('click',function(){
-                        document.querySelectorAll('.place-tag').forEach(function(el){el.className='place-tag';});
-                        t.className='place-tag active';
-                        planRoute(center,places[j].p,places[j].n);
-                    });
-                })(i);
-            }
-            
-            // 地图点击
-            map.on('click',function(e){
-                var p=[e.lnglat.getLng(),e.lnglat.getLat()];
-                var d=getDist(center[1],center[0],p[1],p[0]);
-                var w=d/5*60;
-                if(w<=10){
-                    document.querySelectorAll('.place-tag').forEach(function(el){el.className='place-tag';});
-                    planRoute(center,p,'选定地点');
-                }else{
-                    showToast('超过10分钟步行范围');
-                }
+
+            var pl = document.getElementById('places');
+
+            places.forEach(function(p) {
+                // 地图标记
+                var m = new AMap.Marker({
+                    position: p.pos,
+                    map: map,
+                    title: p.name
+                });
+
+                // 标签
+                var t = document.createElement('div');
+                t.className = 'place';
+                t.textContent = p.name;
+                t.onclick = function() {
+                    document.querySelectorAll('.place').forEach(function(el) { el.className = 'place'; });
+                    t.className = 'place active';
+                    selectPlace(p);
+                };
+                pl.appendChild(t);
+
+                // 标记点击
+                m.on('click', function() {
+                    document.querySelectorAll('.place').forEach(function(el) { el.className = 'place'; });
+                    t.className = 'place active';
+                    selectPlace(p);
+                });
             });
-            
-            setTimeout(function(){showToast('点击地点或地图选择目的地');},1000);
         }
-        
-        function getDist(lat1,lng1,lat2,lng2){
-            var R=6371;
-            var dLat=(lat2-lat1)*Math.PI/180;
-            var dLng=(lng2-lng1)*Math.PI/180;
-            var a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)*Math.sin(dLng/2);
-            return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+
+        function selectPlace(p) {
+            dest = p;
+            document.getElementById('info').className = 'info show';
+            document.getElementById('infoText').textContent = '目的地: ' + p.name;
+            document.getElementById('navBtn').disabled = false;
+            document.getElementById('navBtn').textContent = '开始导航到 ' + p.name;
+
+            // 画路线
+            AMap.plugin(['AMap.Walking'], function() {
+                var walking = new AMap.Walking({ map: map });
+                walking.search(userPos, p.pos);
+            });
         }
-        
-        function planRoute(s,e,n){
-            if(route){route.clear();}
-            dest={e:e,n:n};
-            
-            // 确保 Walking 插件已加载
-            if(typeof AMap.Walking==='undefined'){
-                AMap.plugin(['AMap.Walking'],function(){
-                    doPlanRoute(s,e,n);
-                });
-            }else{
-                doPlanRoute(s,e,n);
+
+        function goNav() {
+            if (dest) {
+                window.location.href = 'https://uri.amap.com/navigation?to=' + dest.pos[0] + ',' + dest.pos[1] + ',' + encodeURIComponent(dest.name) + '&mode=walk&coordinate=gaode';
             }
         }
-        
-        function doPlanRoute(s,e,n){
-            try{
-                route=new AMap.Walking({map:map,panel:false});
-                route.search(s,e,function(status,result){
-                    if(status==='complete'){
-                        var r=result.routes[0];
-                        var t=Math.round(r.time/60);
-                        document.getElementById('routeInfo').style.display='flex';
-                        document.getElementById('routeDest').textContent=n;
-                        document.getElementById('routeMeta').textContent='约 '+r.distance+' 米';
-                        document.getElementById('routeTime').textContent=t;
-                        var b=document.getElementById('navBtn');
-                        b.disabled=false;
-                        b.textContent='开始步行导航 ('+t+'分钟)';
-                    }else{
-                        showToast('路线规划失败:'+status);
-                    }
-                });
-            }catch(err){
-                console.error('路线规划错误:',err);
-                showToast('路线规划功能暂不可用');
-            }
-        }
-        
-        function startNav(){
-            if(dest){
-                window.location.href='https://uri.amap.com/navigation?to='+dest.e[0]+','+dest.e[1]+','+encodeURIComponent(dest.n)+'&mode=walk&coordinate=gaode';
-            }
-        }
-        
-        initGallery();
+
+        startGallery();
     </script>
 </body>
 </html>
