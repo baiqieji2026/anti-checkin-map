@@ -107,13 +107,27 @@
         function showArtwork(idx) {
             const item = shuffledArtworks[idx], bg = document.getElementById('galleryBg');
             document.querySelector('.text-overlay')?.remove();
+            document.getElementById('artworkTitle').textContent = item.type === 'text' ? item.title : '';
+            document.getElementById('artworkArtist').textContent = item.type === 'text' ? item.artist : '';
+            
             if (item.type === 'text') {
-                bg.style.backgroundImage = ''; bg.style.backgroundColor = '#0a0a0a';
-                const overlay = document.createElement('div'); overlay.className = 'text-overlay';
+                bg.style.backgroundImage = ''; 
+                bg.style.backgroundColor = '#0a0a0a';
+                const overlay = document.createElement('div'); 
+                overlay.className = 'text-overlay';
                 overlay.innerHTML = `<div class="text-content">${item.text.replace(/\n/g, '<br>')}</div>`;
                 bg.parentNode.insertBefore(overlay, bg.nextSibling);
             } else {
-                bg.style.backgroundImage = `url(${item.url})`; bg.style.backgroundColor = '';
+                // 画作或照片
+                bg.style.backgroundImage = `url(${item.url})`; 
+                bg.style.backgroundColor = '';
+                // 添加错误处理
+                const img = new Image();
+                img.onerror = () => {
+                    console.log('图片加载失败:', item.url);
+                    bg.style.backgroundColor = '#1a1a1a';
+                };
+                img.src = item.url;
             }
         }
 
