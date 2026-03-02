@@ -3,272 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>我想静静</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, sans-serif; overflow: hidden; background: #000; }
+        body { font-family: -apple-system, sans-serif; overflow: hidden; }
         
-        /* 首页 - 艺术画廊 */
-        .home {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 100; transition: opacity 0.8s ease;
-        }
+        /* 首页 */
+        .home { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; transition: opacity 0.8s ease; }
         .home.fade-out { opacity: 0; pointer-events: none; }
-        
-        /* 背景画廊 */
-        .gallery-bg {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background-size: cover; background-position: center;
-            transition: opacity 1s ease;
-        }
+        .gallery-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; transition: opacity 1s ease; }
         .gallery-bg.fade { opacity: 0; }
-        
-        /* 暗色遮罩 */
-        .overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.8) 100%);
-        }
-        
-        /* 内容层 */
-        .content {
-            position: relative; z-index: 10;
-            height: 100%; display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-        }
-        
-        /* 画作信息 */
-        .artwork-info {
-            position: absolute; bottom: 140px; left: 0; right: 0;
-            text-align: center; padding: 0 20px;
-            opacity: 0.7;
-        }
-        .artwork-title {
-            font-size: 11px; color: rgba(255,255,255,0.6);
-            letter-spacing: 2px; margin-bottom: 4px;
-        }
-        .artwork-artist {
-            font-size: 10px; color: rgba(255,255,255,0.4);
-        }
-        
-        /* 主按钮 */
-        .btn-quiet {
-            padding: 20px 50px; background: transparent;
-            border: 1px solid rgba(255,255,255,0.3); color: rgba(255,255,255,0.9);
-            font-size: 18px; letter-spacing: 8px;
-            cursor: pointer; transition: all 0.4s ease;
-            backdrop-filter: blur(4px);
-        }
-        .btn-quiet:hover {
-            background: rgba(255,255,255,0.1);
-            border-color: rgba(255,255,255,0.5);
-        }
-        
-        /* 指示器 */
-        .indicators {
-            position: absolute; bottom: 60px; left: 0; right: 0;
-            display: flex; justify-content: center; gap: 8px;
-        }
-        .indicator {
-            width: 6px; height: 6px; border-radius: 50%;
-            background: rgba(255,255,255,0.2);
-            transition: all 0.3s;
-        }
-        .indicator.active {
-            background: rgba(255,255,255,0.8);
-            transform: scale(1.2);
-        }
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.8) 100%); }
+        .content { position: relative; z-index: 10; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .artwork-info { position: absolute; bottom: 140px; left: 0; right: 0; text-align: center; padding: 0 20px; opacity: 0.7; }
+        .artwork-title { font-size: 11px; color: rgba(255,255,255,0.6); letter-spacing: 2px; margin-bottom: 4px; }
+        .artwork-artist { font-size: 10px; color: rgba(255,255,255,0.4); }
+        .btn-quiet { padding: 20px 50px; background: transparent; border: 1px solid rgba(255,255,255,0.3); color: rgba(255,255,255,0.9); font-size: 18px; letter-spacing: 8px; cursor: pointer; transition: all 0.4s ease; backdrop-filter: blur(4px); }
+        .indicators { position: absolute; bottom: 60px; left: 0; right: 0; display: flex; justify-content: center; gap: 8px; }
+        .indicator { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.2); transition: all 0.3s; }
+        .indicator.active { background: rgba(255,255,255,0.8); transform: scale(1.2); }
         
         /* 地图页 */
-        .map-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; transform: scale(0.95); transition: opacity 0.6s ease, transform 0.6s ease; background: #0a0a0a; overflow: hidden; }
+        .map-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; transform: scale(0.95); transition: opacity 0.6s ease, transform 0.6s ease; background: #f5f5f5; overflow: hidden; }
         .map-page.active { opacity: 1; transform: scale(1); }
-        
-        /* 简化地图 - 打车软件风格 */
-        .map-page { 
-            position: fixed; 
-            top: 0; left: 0; 
-            width: 100%; height: 100%; 
-            opacity: 0; 
-            transform: scale(0.95); 
-            transition: opacity 0.6s ease, transform 0.6s ease; 
-            background: #1a1a2e; 
-            overflow: hidden; 
-        }
-        .map-page.active { opacity: 1; transform: scale(1); }
-        
-        /* 全屏地图容器 */
-        .simple-map {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            display: grid;
-            grid-template-columns: repeat(12, 1fr);
-            grid-template-rows: repeat(16, 1fr);
-        }
-        
-        .heat-cell {
-            width: 100%; height: 100%;
-        }
-        
-        /* 热力图颜色 - 蓝色系，越蓝越安静 */
-        .heat-5 { background: #1e3a8a; } /* 深蓝 - 极少人 */
-        .heat-4 { background: #3b82f6; } /* 蓝 - 安静 */
-        .heat-3 { background: #60a5fa; } /* 浅蓝 - 中等 */
-        .heat-2 { background: #1f2937; } /* 灰 - 热闹 */
-        .heat-1 { background: #111827; } /* 深灰 - 拥挤 */
-        
-        /* 用户位置标记 - 像打车软件 */
-        .user-location {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 100;
-        }
-        
-        .user-dot {
-            width: 20px; height: 20px;
-            background: #fff;
-            border: 3px solid #3b82f6;
-            border-radius: 50%;
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
-            animation: user-pulse 2s infinite;
-        }
-        
-        @keyframes user-pulse {
-            0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
-            50% { transform: scale(1.1); box-shadow: 0 0 30px rgba(59, 130, 246, 0.8); }
-        }
-        
-        /* 定位指示器 */
-        .location-ring {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 60px; height: 60px;
-            border: 2px solid rgba(59, 130, 246, 0.3);
-            border-radius: 50%;
-            animation: ring-expand 2s infinite;
-        }
-        
-        @keyframes ring-expand {
-            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
-            100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
-        }
-        
-        /* 顶部信息栏 */
-        .map-header {
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            padding: 50px 20px 20px;
-            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
-            z-index: 50;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
-        
-        .back-btn-simple {
-            width: 40px; height: 40px;
-            background: rgba(0,0,0,0.6);
-            border: none;
-            border-radius: 50%;
-            color: #fff;
-            font-size: 18px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .location-status {
-            background: rgba(0,0,0,0.6);
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            color: #9ca3af;
-        }
-        
-        /* 底部图例 - 极简 */
-        .simple-legend {
-            position: absolute;
-            bottom: 30px;
-            left: 20px;
-            z-index: 50;
-            background: rgba(0,0,0,0.7);
-            padding: 12px 16px;
-            border-radius: 8px;
-            display: flex;
-            gap: 16px;
-        }
-        
-        .legend-simple-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 11px;
-            color: #9ca3af;
-        }
-        
-        .legend-color {
-            width: 12px; height: 12px;
-            border-radius: 2px;
-        }
-        .btn-navigate { width: 100%; padding: 14px; background: #1e3a8a; border: none; border-radius: 8px; color: #fff; font-size: 14px; cursor: pointer; }
+        #appleMap { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        .map-header { position: absolute; top: 0; left: 0; right: 0; padding: 50px 20px 20px; background: linear-gradient(180deg, rgba(255,255,255,0.9) 0%, transparent 100%); z-index: 50; display: flex; justify-content: space-between; align-items: flex-start; }
+        .back-btn-simple { width: 40px; height: 40px; background: rgba(255,255,255,0.9); border: none; border-radius: 50%; color: #333; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .location-status { background: rgba(255,255,255,0.9); padding: 8px 16px; border-radius: 20px; font-size: 12px; color: #666; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .map-legend { position: absolute; bottom: 30px; left: 20px; right: 20px; z-index: 50; background: rgba(255,255,255,0.95); padding: 16px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+        .legend-title { font-size: 13px; color: #333; margin-bottom: 12px; font-weight: 500; }
+        .legend-items { display: flex; gap: 16px; }
+        .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #666; }
+        .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
     </style>
 </head>
 <body>
-    <!-- 首页 - 艺术画廊 -->
     <div class="home" id="home">
         <div class="gallery-bg" id="galleryBg"></div>
         <div class="overlay"></div>
-        
         <div class="content">
             <button class="btn-quiet" onclick="enterMap()">我想静静</button>
-            
             <div class="artwork-info" id="artworkInfo">
                 <div class="artwork-title" id="artworkTitle"></div>
                 <div class="artwork-artist" id="artworkArtist"></div>
             </div>
-            
             <div class="indicators" id="indicators"></div>
         </div>
     </div>
 
-    <!-- 地图页 -->
     <div class="map-page" id="mapPage">
-        <!-- 顶部栏 -->
         <div class="map-header">
             <button class="back-btn-simple" onclick="backHome()">←</button>
             <div class="location-status" id="locationStatus">正在定位...</div>
         </div>
-        
-        <!-- 热力图 -->
-        <div class="simple-map" id="simpleMap"></div>
-        
-        <!-- 用户位置（固定在中心） -->
-        <div class="user-location">
-            <div class="location-ring"></div>
-            <div class="user-dot"></div>
-        </div>
-        
-        <!-- 底部图例 -->
-        <div class="simple-legend">
-            <div class="legend-simple-item">
-                <div class="legend-color" style="background:#1e3a8a"></div>
-                <span>极少</span>
-            </div>
-            <div class="legend-simple-item">
-                <div class="legend-color" style="background:#3b82f6"></div>
-                <span>安静</span>
-            </div>
-            <div class="legend-simple-item">
-                <div class="legend-color" style="background:#1f2937"></div>
-                <span>热闹</span>
+        <iframe id="appleMap" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+        <div class="map-legend">
+            <div class="legend-title">人流密度</div>
+            <div class="legend-items">
+                <div class="legend-item"><div class="legend-dot" style="background:#1e3a8a"></div><span>极少</span></div>
+                <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div><span>安静</span></div>
+                <div class="legend-item"><div class="legend-dot" style="background:#1f2937"></div><span>热闹</span></div>
             </div>
         </div>
     </div>
 
     <script>
-        // 艺术作品数据 - 无人物，纯场景
         const artworks = [
             { title: "深夜的窗", artist: "Edward Hopper 风格", url: "https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=800&q=80" },
             { title: "空房间", artist: "Vilhelm Hammershøi 风格", url: "https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800&q=80" },
@@ -280,174 +80,45 @@
             { title: "黄昏岸边", artist: "独处时光", url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80" },
         ];
 
-        let currentArtwork = 0;
-        let galleryInterval;
+        let currentArtwork = 0, galleryInterval;
 
-        // 初始化画廊
         function initGallery() {
-            const bg = document.getElementById('galleryBg');
-            const indicators = document.getElementById('indicators');
-            
-            // 创建指示器
-            artworks.forEach((_, i) => {
-                const dot = document.createElement('div');
-                dot.className = 'indicator' + (i === 0 ? ' active' : '');
-                indicators.appendChild(dot);
-            });
-            
-            // 设置第一张图
-            bg.style.backgroundImage = `url(${artworks[0].url})`;
-            updateArtworkInfo(0);
-            
-            // 开始轮播
-            galleryInterval = setInterval(nextArtwork, 5000);
+            const bg = document.getElementById('galleryBg'), indicators = document.getElementById('indicators');
+            artworks.forEach((_, i) => { const dot = document.createElement('div'); dot.className = 'indicator' + (i === 0 ? ' active' : ''); indicators.appendChild(dot); });
+            bg.style.backgroundImage = `url(${artworks[0].url})`; updateArtworkInfo(0); galleryInterval = setInterval(nextArtwork, 5000);
         }
 
         function nextArtwork() {
-            const bg = document.getElementById('galleryBg');
-            const indicators = document.querySelectorAll('.indicator');
-            
-            // 淡出
-            bg.classList.add('fade');
-            
-            setTimeout(() => {
-                currentArtwork = (currentArtwork + 1) % artworks.length;
-                bg.style.backgroundImage = `url(${artworks[currentArtwork].url})`;
-                updateArtworkInfo(currentArtwork);
-                
-                // 更新指示器
-                indicators.forEach((dot, i) => {
-                    dot.classList.toggle('active', i === currentArtwork);
-                });
-                
-                // 淡入
-                bg.classList.remove('fade');
-            }, 1000);
+            const bg = document.getElementById('galleryBg'), indicators = document.querySelectorAll('.indicator');
+            bg.classList.add('fade'); setTimeout(() => { currentArtwork = (currentArtwork + 1) % artworks.length; bg.style.backgroundImage = `url(${artworks[currentArtwork].url})`; updateArtworkInfo(currentArtwork); indicators.forEach((dot, i) => dot.classList.toggle('active', i === currentArtwork)); bg.classList.remove('fade'); }, 1000);
         }
 
-        function updateArtworkInfo(index) {
-            document.getElementById('artworkTitle').textContent = artworks[index].title;
-            document.getElementById('artworkArtist').textContent = artworks[index].artist;
-        }
-
-        // 地图数据
-        const places = [
-            { name: "越秀公园东北角", lat: 23.1408, lng: 113.2644, quiet: 4 },
-            { name: "天河公园西门小湖", lat: 23.1286, lng: 113.3617, quiet: 4 },
-            { name: "海珠湖公园西侧栈道", lat: 23.0703, lng: 113.3144, quiet: 5 },
-            { name: "珠江公园东区", lat: 23.1250, lng: 113.3333, quiet: 4 },
-            { name: "东山口新河浦老别墅区", lat: 23.1208, lng: 113.3000, quiet: 5 },
-            { name: "华侨新村老别墅区", lat: 23.1333, lng: 113.2833, quiet: 5 },
-            { name: "广州图书馆8-9楼", lat: 23.1208, lng: 113.3250, quiet: 5 },
-            { name: "红专厂旧址", lat: 23.1167, lng: 113.3667, quiet: 5 },
-        ];
-
-        let userLocation = null;
-
-        function getDistance(lat1, lng1, lat2, lng2) {
-            const R = 6371;
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLng = (lng2 - lng1) * Math.PI / 180;
-            const a = Math.sin(dLat/2)**2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng/2)**2;
-            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        }
-
-        function getWalkTime(distance) {
-            return Math.round(distance / 5 * 60);
-        }
+        function updateArtworkInfo(index) { document.getElementById('artworkTitle').textContent = artworks[index].title; document.getElementById('artworkArtist').textContent = artworks[index].artist; }
 
         function enterMap() {
-            clearInterval(galleryInterval);
-            document.getElementById('home').classList.add('fade-out');
-            setTimeout(() => {
-                document.getElementById('mapPage').classList.add('active');
-                initMap();
-            }, 400);
+            clearInterval(galleryInterval); document.getElementById('home').classList.add('fade-out');
+            setTimeout(() => { document.getElementById('mapPage').classList.add('active'); initAppleMap(); }, 400);
         }
 
-        function backHome() {
-            document.getElementById('mapPage').classList.remove('active');
-            document.getElementById('home').classList.remove('fade-out');
-            document.getElementById('placeCard').classList.remove('show');
-            galleryInterval = setInterval(nextArtwork, 5000);
-        }
+        function backHome() { document.getElementById('mapPage').classList.remove('active'); document.getElementById('home').classList.remove('fade-out'); galleryInterval = setInterval(nextArtwork, 5000); }
 
-        function initMap() {
+        function initAppleMap() {
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    pos => {
-                        userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-                        renderMap();
-                    },
-                    err => {
-                        userLocation = { lat: 23.1291, lng: 113.2644 };
-                        renderMap();
-                    },
-                    { enableHighAccuracy: true, timeout: 10000 }
-                );
+                navigator.geolocation.getCurrentPosition(pos => {
+                    const lat = pos.coords.latitude, lng = pos.coords.longitude;
+                    document.getElementById('locationStatus').textContent = '已定位';
+                    // 使用苹果地图URL scheme
+                    const mapUrl = `https://maps.apple.com/?ll=${lat},${lng}&z=15&t=m`;
+                    document.getElementById('appleMap').src = mapUrl;
+                }, err => {
+                    // 默认广州
+                    document.getElementById('appleMap').src = 'https://maps.apple.com/?ll=23.1291,113.2644&z=15&t=m';
+                }, { enableHighAccuracy: true, timeout: 10000 });
             } else {
-                userLocation = { lat: 23.1291, lng: 113.2644 };
-                renderMap();
+                document.getElementById('appleMap').src = 'https://maps.apple.com/?ll=23.1291,113.2644&z=15&t=m';
             }
         }
 
-        function renderMap() {
-            const grid = document.getElementById('simpleMap');
-            const nearby = places.map(p => {
-                const dist = getDistance(userLocation.lat, userLocation.lng, p.lat, p.lng);
-                return { ...p, dist, walkTime: getWalkTime(dist) };
-            }).filter(p => p.walkTime <= 10).sort((a, b) => a.walkTime - b.walkTime);
-            
-            // 更新定位状态
-            document.getElementById('locationStatus').textContent = '已定位';
-            
-            grid.innerHTML = '';
-            
-            // 12x16 = 192个格子，全屏热力图
-            for (let i = 0; i < 192; i++) {
-                const cell = document.createElement('div');
-                cell.className = 'heat-cell';
-                
-                const row = Math.floor(i / 12);
-                const col = i % 12;
-                
-                // 计算与地点的距离
-                let minDist = Infinity;
-                let nearestQuiet = 3;
-                
-                nearby.forEach(p => {
-                    const pRow = 8 + Math.floor((p.lat - userLocation.lat) * 200);
-                    const pCol = 6 + Math.floor((p.lng - userLocation.lng) * 200);
-                    const d = Math.sqrt((row - pRow) ** 2 + (col - pCol) ** 2);
-                    if (d < minDist) {
-                        minDist = d;
-                        nearestQuiet = p.quiet;
-                    }
-                });
-                
-                // 根据距离衰减
-                let heatLevel = nearestQuiet;
-                if (minDist > 2) heatLevel = Math.max(2, heatLevel - 1);
-                if (minDist > 4) heatLevel = Math.max(1, heatLevel - 1);
-                
-                // 中心区域（用户位置）
-                const centerRow = 8;
-                const centerCol = 6;
-                const distToCenter = Math.sqrt((row - centerRow) ** 2 + (col - centerCol) ** 2);
-                
-                if (distToCenter <= 1) {
-                    cell.classList.add('heat-5'); // 用户所在位置最安静
-                } else if (nearby.length === 0 || minDist > 6) {
-                    cell.classList.add('heat-3'); // 默认中等
-                } else {
-                    cell.classList.add(`heat-${heatLevel}`);
-                }
-                
-                grid.appendChild(cell);
-            }
-        }
-
-        // 初始化
         initGallery();
     </script>
 </body>
