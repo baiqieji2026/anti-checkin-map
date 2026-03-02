@@ -172,16 +172,29 @@
                 return;
             }
             
-            // Safari 兼容性：延迟初始化
-            setTimeout(function() {
-                try {
-                    const defaultPos = [113.2644, 23.1291];
-                    createMap(defaultPos);
-                } catch (e) {
-                    console.error('地图初始化失败:', e);
-                    mapDiv.innerHTML = '<div style="width:100%;height:100%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#666;font-size:14px;">地图加载失败</div>';
-                }
-            }, 100);
+            // 加载高德定位插件
+            AMap.plugin(['AMap.Geolocation'], function() {
+                const geolocation = new AMap.Geolocation({
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    buttonPosition: 'RB',
+                    zoomToAccuracy: true
+                });
+                
+                geolocation.getCurrentPosition(function(status, result) {
+                    if (status === 'complete') {
+                        // 定位成功
+                        const lng = result.position.getLng();
+                        const lat = result.position.getLat();
+                        console.log('定位成功:', lng, lat);
+                        createMap([lng, lat]);
+                    } else {
+                        // 定位失败，使用默认位置
+                        console.log('定位失败，使用默认位置');
+                        createMap([113.2644, 23.1291]);
+                    }
+                });
+            });
         }
         
         function createMap(center) {
