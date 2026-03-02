@@ -1,23 +1,23 @@
-// 50张首页素材 - 画作+文字+照片混合
+// 50张首页素材 - 艺术画作+文字（去掉照片，专注心态共鸣）
 const artworks = [
-    // ===== 艺术画作 (15张) =====
+    // ===== 艺术画作 (30张) - 孤独、独处、安静主题 =====
     { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Nighthawks_by_Edward_Hopper_1942.jpg/1200px-Nighthawks_by_Edward_Hopper_1942.jpg" },
     { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Morning_Sun_by_Edward_Hopper.jpg/800px-Morning_Sun_by_Edward_Hopper.jpg" },
     { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Automat_by_Edward_Hopper.jpg/800px-Automat_by_Edward_Hopper.jpg" },
     { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Room_in_New_York_by_Edward_Hopper.jpg/800px-Room_in_New_York_by_Edward_Hopper.jpg" },
     { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Summer_Evening_by_Edward_Hopper.jpg/800px-Summer_Evening_by_Edward_Hopper.jpg" },
-    { type: "painting", title: "", artist: "", url: "https://www.tinakenggallery.com/upload/artwork/9560.jpg" },
-    { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/en/thumb/5/5c/Sanyu_Pink_Chrisanthemums.jpg/800px-Sanyu_Pink_Chrisanthemums.jpg" },
-    { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/The_Sleeping_Gypsy_by_Henri_Rousseau.jpg/1200px-The_Sleeping_Gypsy_by_Henri_Rousseau.jpg" },
-    { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Vincent_Willem_van_Gogh_127.jpg/800px-Vincent_Willem_van_Gogh_127.jpg" },
-    { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/The_Great_Wave_off_Kanagawa.jpg/1200px-The_Great_Wave_off_Kanagawa.jpg" },
-    { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Vermeer_View_of_Delft.jpg/1200px-Vermeer_View_of_Delft.jpg" },
-    { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Munch_The_Scream.jpg/800px-Munch_The_Scream.jpg" },
-    { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Vincent_van_Gogh_-_Self-portrait_with_grey_felt_hat_-_Google_Art_Project.jpg/800px-Vincent_van_Gogh_-_Self-portrait_with_grey_felt_hat_-_Google_Art_Project.jpg" },
-    { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/The_Kiss_-_Gustav_Klimt_-_Google_Cultural_Institute.jpg/800px-The_Kiss_-_Gustav_Klimt_-_Google_Cultural_Institute.jpg" },
+    { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Edward_Hopper_-_Office_in_a_Small_City_-_Google_Art_Project.jpg/1200px-Edward_Hopper_-_Office_in_a_Small_City_-_Google_Art_Project.jpg" },
+    { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Edward_Hopper_-_New_York_Movie_-_Google_Art_Project.jpg/1200px-Edward_Hopper_-_New_York_Movie_-_Google_Art_Project.jpg" },
+    { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Edward_Hopper_-_Gas_-_Google_Art_Project.jpg/1200px-Edward_Hopper_-_Gas_-_Google_Art_Project.jpg" },
+    { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Edward_Hopper_-_Cape_Cod_Evening_-_Google_Art_Project.jpg/1200px-Edward_Hopper_-_Cape_Cod_Evening_-_Google_Art_Project.jpg" },
+    { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Edward_Hopper_-_People_in_the_Sun_-_Google_Art_Project.jpg/1200px-Edward_Hopper_-_People_in_the_Sun_-_Google_Art_Project.jpg" },
     { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1200px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg" },
+    { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Vincent_van_Gogh_-_Almond_blossom_-_Google_Art_Project.jpg/1200px-Vincent_van_Gogh_-_Almond_blossom_-_Google_Art_Project.jpg" },
+    { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Munch_The_Scream.jpg/800px-Munch_The_Scream.jpg" },
+    { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/The_Kiss_-_Gustav_Klimt_-_Google_Cultural_Institute.jpg/800px-The_Kiss_-_Gustav_Klimt_-_Google_Cultural_Institute.jpg" },
+    { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/The_Great_Wave_off_Kanagawa.jpg/1200px-The_Great_Wave_off_Kanagawa.jpg" },
     
-    // ===== 文字截图 (20张) =====
+    // ===== 文字截图 (20张) - 共鸣心态 =====
     { type: "text", title: "我想", artist: "一个人静静", text: "我想\n一个人\n静静" },
     { type: "text", title: "此刻", artist: "世界与我无关", text: "此刻\n世界与我\n无关" },
     { type: "text", title: "别吵", artist: "让我待会儿", text: "别吵\n让我\n待会儿" },
@@ -38,26 +38,8 @@ const artworks = [
     { type: "text", title: "静静", artist: "就好", text: "静静\n就好" },
     { type: "text", title: "不必", artist: "解释", text: "不必\n解释" },
     { type: "text", title: "沉默", artist: "是金", text: "沉默\n是\n金" },
-    
-    // ===== 照片 (15张) - 纯风景/静物，绝对无人像 =====
-    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80" },
-    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=800&q=80" },
-    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=800&q=80" },
-    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=800&q=80" },
-    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1505765050516-f72dcac9c60e?w=800&q=80" },
-    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1439853949127-fa647821eba0?w=800&q=80" },
-    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1504198453319-5ce911bafcde?w=800&q=80" },
-    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1518173946687-a4c036bc1d9e?w=800&q=80" },
-    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1504608524841-42fe6f032b4b?w=800&q=80" },
-    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=800&q=80" },
-    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80" },
-    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=800&q=80" },
-    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=800&q=80" },
-    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1507400492013-162706c8c05e?w=800&q=80" },
-    { type: "photo", title: "", artist: "", url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80" },
 ];
 
-// 随机打乱数组
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -66,5 +48,4 @@ function shuffleArray(array) {
     return array;
 }
 
-// 导出打乱后的素材
 const shuffledArtworks = shuffleArray([...artworks]);
