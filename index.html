@@ -104,66 +104,39 @@
         </div>
     </div>
 
+    <script src="artworks.js"></script>
     <script>
-        // 首页素材 - 混合：画作+文字
-        const artworks = [
-            // 1. 霍珀《夜鹰》- 深夜餐厅孤独感
-            { 
-                title: "", 
-                artist: "", 
-                url: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Nighthawks_by_Edward_Hopper_1942.jpg/1200px-Nighthawks_by_Edward_Hopper_1942.jpg",
-                type: "painting"
-            },
-            // 2. 文字「我想一个人静静」
-            { 
-                title: "我想", 
-                artist: "一个人静静", 
-                url: "",
-                type: "text",
-                text: "我想\n一个人\n静静"
-            },
-            // 3. 常玉《孤独的象》
-            { 
-                title: "", 
-                artist: "", 
-                url: "https://www.tinakenggallery.com/upload/artwork/9560.jpg",
-                type: "painting"
-            },
-            // 4. 文字「此刻，世界与我无关」
-            { 
-                title: "此刻", 
-                artist: "世界与我无关", 
-                url: "",
-                type: "text",
-                text: "此刻\n世界与我\n无关"
-            },
-            // 5. 霍珀《晨阳》
-            { 
-                title: "", 
-                artist: "", 
-                url: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Morning_Sun_by_Edward_Hopper.jpg/800px-Morning_Sun_by_Edward_Hopper.jpg",
-                type: "painting"
-            },
-        ];
-
         let currentArtwork = 0, galleryInterval, map = null;
 
         function initGallery() {
-            const bg = document.getElementById('galleryBg'), indicators = document.getElementById('indicators');
-            artworks.forEach((_, i) => { const dot = document.createElement('div'); dot.className = 'indicator' + (i === 0 ? ' active' : ''); indicators.appendChild(dot); });
-            bg.style.backgroundImage = `url(${artworks[0].url})`; updateArtworkInfo(0); galleryInterval = setInterval(nextArtwork, 4000);
+            const bg = document.getElementById('galleryBg');
+            // 随机选择起始位置
+            currentArtwork = Math.floor(Math.random() * shuffledArtworks.length);
+            updateArtworkInfo(currentArtwork);
+            // 3秒切换
+            galleryInterval = setInterval(nextArtwork, 3000);
         }
 
         function nextArtwork() {
-            const bg = document.getElementById('galleryBg'), indicators = document.querySelectorAll('.indicator');
-            bg.classList.add('fade'); setTimeout(() => { currentArtwork = (currentArtwork + 1) % artworks.length; bg.style.backgroundImage = `url(${artworks[currentArtwork].url})`; updateArtworkInfo(currentArtwork); indicators.forEach((dot, i) => dot.classList.toggle('active', i === currentArtwork)); bg.classList.remove('fade'); }, 1000);
+            const bg = document.getElementById('galleryBg');
+            bg.classList.add('fade');
+            setTimeout(() => {
+                // 随机选择下一张（不是顺序）
+                currentArtwork = Math.floor(Math.random() * shuffledArtworks.length);
+                updateArtworkInfo(currentArtwork);
+                bg.classList.remove('fade');
+            }, 500);
         }
 
         function updateArtworkInfo(index) {
-            const item = artworks[index];
+            const item = shuffledArtworks[index];
             const titleEl = document.getElementById('artworkTitle');
             const artistEl = document.getElementById('artworkArtist');
             const bg = document.getElementById('galleryBg');
+            
+            // 移除之前的文字覆盖层
+            const oldOverlay = document.querySelector('.text-overlay');
+            if (oldOverlay) oldOverlay.remove();
             
             if (item.type === 'text') {
                 // 文字类型：显示文字，背景为纯色
@@ -173,24 +146,17 @@
                 artistEl.textContent = item.artist;
                 
                 // 添加文字显示
-                let textOverlay = document.querySelector('.text-overlay');
-                if (!textOverlay) {
-                    textOverlay = document.createElement('div');
-                    textOverlay.className = 'text-overlay';
-                    textOverlay.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;z-index:5;';
-                    bg.parentNode.insertBefore(textOverlay, bg.nextSibling);
-                }
+                const textOverlay = document.createElement('div');
+                textOverlay.className = 'text-overlay';
+                textOverlay.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;z-index:5;';
                 textOverlay.innerHTML = `<div style="text-align:center;color:rgba(255,255,255,0.9);font-size:32px;font-weight:200;letter-spacing:8px;line-height:1.8;white-space:pre;">${item.text}</div>`;
-                textOverlay.style.display = 'flex';
+                bg.parentNode.insertBefore(textOverlay, bg.nextSibling);
             } else {
-                // 画作类型
+                // 画作或照片类型
                 bg.style.backgroundImage = `url(${item.url})`;
                 bg.style.backgroundColor = '';
                 titleEl.textContent = '';
                 artistEl.textContent = '';
-                
-                const textOverlay = document.querySelector('.text-overlay');
-                if (textOverlay) textOverlay.style.display = 'none';
             }
         }
 
