@@ -1,6 +1,7 @@
-// 50张首页素材 - 艺术画作+文字（去掉照片，专注心态共鸣）
+// 50张首页素材 - 艺术画作+文字（专注孤独/独处/安静心态共鸣）
 const artworks = [
     // ===== 艺术画作 (30张) - 孤独、独处、安静主题 =====
+    // 爱德华·霍珀 - 孤独感
     { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Nighthawks_by_Edward_Hopper_1942.jpg/1200px-Nighthawks_by_Edward_Hopper_1942.jpg" },
     { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Morning_Sun_by_Edward_Hopper.jpg/800px-Morning_Sun_by_Edward_Hopper.jpg" },
     { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Automat_by_Edward_Hopper.jpg/800px-Automat_by_Edward_Hopper.jpg" },
@@ -11,11 +12,34 @@ const artworks = [
     { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Edward_Hopper_-_Gas_-_Google_Art_Project.jpg/1200px-Edward_Hopper_-_Gas_-_Google_Art_Project.jpg" },
     { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Edward_Hopper_-_Cape_Cod_Evening_-_Google_Art_Project.jpg/1200px-Edward_Hopper_-_Cape_Cod_Evening_-_Google_Art_Project.jpg" },
     { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Edward_Hopper_-_People_in_the_Sun_-_Google_Art_Project.jpg/1200px-Edward_Hopper_-_People_in_the_Sun_-_Google_Art_Project.jpg" },
+    
+    // 梵高 - 内心世界
     { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1200px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg" },
     { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Vincent_van_Gogh_-_Almond_blossom_-_Google_Art_Project.jpg/1200px-Vincent_van_Gogh_-_Almond_blossom_-_Google_Art_Project.jpg" },
+    { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Vincent_van_Gogh_-_Wheat_Field_with_Cypresses_-_Google_Art_Project.jpg/1200px-Vincent_van_Gogh_-_Wheat_Field_with_Cypresses_-_Google_Art_Project.jpg" },
+    { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Vincent_van_Gogh_-_Cafe_Terrace_at_Night_-_Google_Art_Project.jpg/1200px-Vincent_van_Gogh_-_Cafe_Terrace_at_Night_-_Google_Art_Project.jpg" },
+    { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Vincent_Willem_van_Gogh_127.jpg/800px-Vincent_Willem_van_Gogh_127.jpg" },
+    
+    // 蒙克、克林姆特等 - 情绪表达
     { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Munch_The_Scream.jpg/800px-Munch_The_Scream.jpg" },
     { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/The_Kiss_-_Gustav_Klimt_-_Google_Cultural_Institute.jpg/800px-The_Kiss_-_Gustav_Klimt_-_Google_Cultural_Institute.jpg" },
     { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/The_Great_Wave_off_Kanagawa.jpg/1200px-The_Great_Wave_off_Kanagawa.jpg" },
+    { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/The_Sleeping_Gypsy_by_Henri_Rousseau.jpg/1200px-The_Sleeping_Gypsy_by_Henri_Rousseau.jpg" },
+    { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Vermeer_View_of_Delft.jpg/1200px-Vermeer_View_of_Delft.jpg" },
+    
+    // 常玉、弗里德里希等 - 极简孤独
+    { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/en/thumb/5/5c/Sanyu_Pink_Chrisanthemums.jpg/800px-Sanyu_Pink_Chrisanthemums.jpg" },
+    { type: "painting", title: "", artist: "", url: "https://www.tinakenggallery.com/upload/artwork/9560.jpg" },
+    { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Caspar_David_Friedrich_-_Wanderer_above_the_Sea_of_Fog_-_Google_Art_Project.jpg/800px-Caspar_David_Friedrich_-_Wanderer_above_the_Sea_of_Fog_-_Google_Art_Project.jpg" },
+    { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Solitude_%281887%29_by_William_Merritt_Chase.jpg/800px-Solitude_%281887%29_by_William_Merritt_Chase.jpg" },
+    { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Vincent_van_Gogh_-_Self-portrait_with_grey_felt_hat_-_Google_Art_Project.jpg/800px-Vincent_van_Gogh_-_Self-portrait_with_grey_felt_hat_-_Google_Art_Project.jpg" },
+    
+    // 更多孤独主题
+    { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Pieter_Bruegel_the_Elder_-_The_Tower_of_Babel_%28Vienna%29_-_Google_Art_Project.jpg/1200px-Pieter_Bruegel_the_Elder_-_The_Tower_of_Babel_%28Vienna%29_-_Google_Art_Project.jpg" },
+    { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Rembrandt_van_Rijn_-_The_Night_Watch_-_Google_Art_Project.jpg/1200px-Rembrandt_van_Rijn_-_The_Night_Watch_-_Google_Art_Project.jpg" },
+    { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Henri_Matisse_-_The_Red_Studio_-_Google_Art_Project.jpg/1200px-Henri_Matisse_-_The_Red_Studio_-_Google_Art_Project.jpg" },
+    { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Rene_Magritte_The_Son_of_Man.jpg/800px-Rene_Magritte_The_Son_of_Man.jpg" },
+    { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Salvador_Dali_-_The_Persistence_of_Memory_-_Google_Art_Project.jpg/1200px-Salvador_Dali_-_The_Persistence_of_Memory_-_Google_Art_Project.jpg" },
     
     // ===== 文字截图 (20张) - 共鸣心态 =====
     { type: "text", title: "我想", artist: "一个人静静", text: "我想\n一个人\n静静" },

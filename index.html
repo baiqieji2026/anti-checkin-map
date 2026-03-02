@@ -144,19 +144,56 @@
         }
 
         function initMap() {
-            if (typeof AMap === 'undefined') { showToast('地图加载失败'); return; }
+            console.log('初始化地图...');
+            
+            // 检查高德API
+            if (typeof AMap === 'undefined') {
+                console.error('高德API未加载');
+                showToast('地图服务暂时不可用');
+                // 使用默认位置创建简单地图
+                setTimeout(() => createFallbackMap([113.2644, 23.1291]), 500);
+                return;
+            }
+            
+            // 加载插件
             AMap.plugin(['AMap.Geolocation', 'AMap.HeatMap', 'AMap.Walking'], () => {
-                const geo = new AMap.Geolocation({ enableHighAccuracy: true, timeout: 10000, zoomToAccuracy: true });
+                console.log('插件加载完成');
+                const geo = new AMap.Geolocation({ 
+                    enableHighAccuracy: true, 
+                    timeout: 10000, 
+                    zoomToAccuracy: true,
+                    showButton: true
+                });
+                
                 geo.getCurrentPosition((status, result) => {
-                    if (status === 'complete') {
+                    console.log('定位结果:', status, result);
+                    if (status === 'complete' && result.position) {
                         userPos = [result.position.getLng(), result.position.getLat()];
+                        console.log('定位成功:', userPos);
                         createMap(userPos);
                     } else {
+                        console.log('定位失败，使用默认位置');
                         userPos = [113.2644, 23.1291];
+                        showToast('定位失败，使用默认位置');
                         createMap(userPos);
                     }
                 });
             });
+        }
+        
+        // 备选地图（当高德API受限时）
+        function createFallbackMap(center) {
+            const mapDiv = document.getElementById('gaodeMap');
+            mapDiv.innerHTML = `
+                <div style="width:100%;height:100%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#666;text-align:center;padding:20px;">
+                    <div>
+                        <div style="font-size:48px;margin-bottom:16px;">🗺️</div>
+                        <div style="font-size:16px;margin-bottom:8px;">地图服务暂时不可用</div>
+                        <div style="font-size:13px;color:#999;">请检查定位权限或稍后重试</div>
+                        <div style="margin-top:20px;font-size:12px;color:#444;">默认位置: 广州</div>
+                    </div>
+                </div>
+            `;
         }
 
         function createMap(center) {
