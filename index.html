@@ -85,20 +85,23 @@
 
     <script src="artworks.js"></script>
     <script>
-        // 检查artworks.js是否加载成功
-        if (typeof shuffledArtworks === 'undefined') {
-            console.error('artworks.js 加载失败');
-            // 创建默认素材
-            const shuffledArtworks = [
+        // 确保 artworks.js 加载成功
+        if (typeof window.shuffledArtworks === 'undefined') {
+            console.error('artworks.js 加载失败，使用内嵌素材');
+            window.shuffledArtworks = [
                 { type: "text", title: "我想", artist: "一个人静静", text: "我想\n一个人\n静静" },
-                { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Nighthawks_by_Edward_Hopper_1942.jpg/1200px-Nighthawks_by_Edward_Hopper_1942.jpg" }
+                { type: "text", title: "此刻", artist: "世界与我无关", text: "此刻\n世界与我\n无关" },
+                { type: "text", title: "别吵", artist: "让我待会儿", text: "别吵\n让我\n待会儿" },
+                { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Nighthawks_by_Edward_Hopper_1942.jpg/1200px-Nighthawks_by_Edward_Hopper_1942.jpg" },
+                { type: "painting", title: "", artist: "", url: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1200px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg" }
             ];
         }
         
         let currentIdx = 0, galleryTimer, map = null, userPos = null, route = null, dest = null, lastIdx = -1;
 
         function initGallery() {
-            currentIdx = Math.floor(Math.random() * shuffledArtworks.length);
+            console.log('初始化画廊，素材数量:', window.shuffledArtworks.length);
+            currentIdx = Math.floor(Math.random() * window.shuffledArtworks.length);
             lastIdx = currentIdx;
             showArtwork(currentIdx);
             galleryTimer = setInterval(nextArtwork, 3000);
@@ -107,10 +110,13 @@
         function nextArtwork() {
             const bg = document.getElementById('galleryBg');
             bg.classList.add('fade');
-            setTimeout(() => {
+            setTimeout(function() {
                 let nextIdx;
-                do { nextIdx = Math.floor(Math.random() * shuffledArtworks.length); } while (nextIdx === lastIdx);
-                currentIdx = nextIdx; lastIdx = nextIdx;
+                do { 
+                    nextIdx = Math.floor(Math.random() * window.shuffledArtworks.length); 
+                } while (nextIdx === lastIdx && window.shuffledArtworks.length > 1);
+                currentIdx = nextIdx; 
+                lastIdx = nextIdx;
                 showArtwork(currentIdx);
                 bg.classList.remove('fade');
             }, 500);
@@ -236,12 +242,16 @@
                 });
                 heatmap.setDataSet({ data: heatData, max: 60 });
                 
-                // 添加4个安静地点
+                // 添加8个虚拟安静地点（用于测试）
                 var places = [
                     { name: "街角公园", pos: [center[0] + 0.003, center[1] + 0.002] },
                     { name: "小巷咖啡", pos: [center[0] - 0.002, center[1] + 0.003] },
                     { name: "河边长椅", pos: [center[0] + 0.001, center[1] - 0.003] },
-                    { name: "老书店", pos: [center[0] - 0.003, center[1] - 0.001] }
+                    { name: "老书店", pos: [center[0] - 0.003, center[1] - 0.001] },
+                    { name: "安静角落", pos: [center[0] + 0.0025, center[1] + 0.0015] },
+                    { name: "树荫下", pos: [center[0] - 0.0015, center[1] - 0.0025] },
+                    { name: "天台花园", pos: [center[0] + 0.001, center[1] + 0.0025] },
+                    { name: "隐秘庭院", pos: [center[0] - 0.0025, center[1] + 0.001] }
                 ];
                 
                 for (var i = 0; i < places.length; i++) {
@@ -249,20 +259,26 @@
                         var m = new AMap.Marker({ 
                             position: place.pos,
                             title: place.name,
-                            icon: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_r.png'
+                            icon: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_r.png',
+                            clickable: true
                         });
                         m.setMap(map);
-                        m.on('click', function() {
+                        // 使用更可靠的点击绑定
+                        AMap.event.addListener(m, 'click', function() {
+                            console.log('点击了地点:', place.name);
                             planRoute(center, place.pos, place.name);
                         });
                     })(places[i]);
                 }
                 
-                // 点击地图
+                // 点击地图任意位置
                 map.on('click', function(e) {
+                    console.log('地图点击:', e.lnglat.getLng(), e.lnglat.getLat());
                     var pos = [e.lnglat.getLng(), e.lnglat.getLat()];
                     var dist = getDist(center[1], center[0], pos[1], pos[0]);
-                    if (dist / 5 * 60 <= 10) {
+                    var walkTime = dist / 5 * 60;
+                    console.log('距离:', dist, '步行时间:', walkTime);
+                    if (walkTime <= 10) {
                         planRoute(center, pos, '选定地点');
                     } else {
                         showToast('超过10分钟步行范围');
