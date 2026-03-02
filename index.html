@@ -117,15 +117,14 @@
         }
 
         function showArtwork(idx) {
+            const bg = document.getElementById('galleryBg');
             const item = window.shuffledArtworks ? window.shuffledArtworks[idx] : null;
             if (!item) {
                 console.error('素材加载失败，使用默认');
-                // 显示默认黑色背景
                 bg.style.backgroundColor = '#0a0a0a';
                 return;
             }
             
-            const bg = document.getElementById('galleryBg');
             document.querySelector('.text-overlay')?.remove();
             document.getElementById('artworkTitle').textContent = item.type === 'text' ? item.title : '';
             document.getElementById('artworkArtist').textContent = item.type === 'text' ? item.artist : '';
@@ -282,17 +281,18 @@
 
         function planRoute(start, end, name) {
             if (route) route.clear();
-            dest = { end, name };
+            dest = { end: end, name: name };
             route = new AMap.Walking({ map: map, panel: false });
-            route.search(start, end, (status, result) => {
+            route.search(start, end, function(status, result) {
                 if (status === 'complete') {
-                    const r = result.routes[0], time = Math.round(r.time / 60);
+                    var r = result.routes[0];
+                    var time = Math.round(r.time / 60);
                     document.getElementById('defaultInfo').style.display = 'none';
                     document.getElementById('routeInfo').style.display = 'flex';
                     document.getElementById('routeDest').textContent = name;
-                    document.getElementById('routeMeta').textContent = `约 ${r.distance} 米`;
+                    document.getElementById('routeMeta').textContent = '约 ' + r.distance + ' 米';
                     document.getElementById('timeVal').textContent = time;
-                    const btn = document.getElementById('navBtn');
+                    var btn = document.getElementById('navBtn');
                     btn.disabled = time > 10;
                     btn.textContent = time > 10 ? '超过10分钟范围' : '开始步行导航';
                 }
@@ -300,12 +300,17 @@
         }
 
         function startNav() {
-            if (dest) window.location.href = `https://uri.amap.com/navigation?to=${dest.end[0]},${dest.end[1]},${encodeURIComponent(dest.name)}&mode=walk&coordinate=gaode`;
+            if (dest) {
+                var url = 'https://uri.amap.com/navigation?to=' + dest.end[0] + ',' + dest.end[1] + ',' + encodeURIComponent(dest.name) + '&mode=walk&coordinate=gaode';
+                window.location.href = url;
+            }
         }
 
         function showToast(msg) {
-            const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 3000);
+            var t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(function() { t.classList.remove('show'); }, 3000);
         }
 
         initGallery();
