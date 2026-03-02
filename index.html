@@ -224,55 +224,127 @@
         }
         
         function initMapWithHeat(center) {
-            // 初始化地图
-            map = new AMap.Map('gaodeMap', {
-                zoom: 14,
-                center: center,
-                viewMode: '2D',
-                mapStyle: 'amap://styles/dark'
-            });
-            
-            // 添加用户位置标记
-            new AMap.Marker({
-                position: center,
-                map: map,
-                icon: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_b.png'
-            });
-            
-            // 模拟热力数据 - 在中心周围生成随机热力点
-            const heatData = [];
-            for (let i = 0; i < 100; i++) {
-                // 在中心周围随机生成点
-                const offsetX = (Math.random() - 0.5) * 0.02;
-                const offsetY = (Math.random() - 0.5) * 0.02;
-                const lng = center[0] + offsetX;
-                const lat = center[1] + offsetY;
-                
-                // 距离中心越近，人数越多（模拟）
-                const dist = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
-                const count = Math.max(1, Math.floor((0.01 - dist) * 1000));
-                
-                heatData.push({
-                    lng: lng,
-                    lat: lat,
-                    count: Math.max(1, count)
+            // 加载所需插件
+            AMap.plugin(['AMap.HeatMap', 'AMap.Walking', 'AMap.Geocoder'], function() {
+                // 初始化地图
+                map = new AMap.Map('gaodeMap', {
+                    zoom: 15,
+                    center: center,
+                    viewMode: '2D',
+                    mapStyle: 'amap://styles/dark'
                 });
-            }
-            
-            // 加载热力图插件
-            AMap.plugin(['AMap.HeatMap'], function() {
+                
+                // 添加用户位置标记（蓝色）
+                const userMarker = new AMap.Marker({
+                    position: center,
+                    map: map,
+                    icon: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_b.png',
+                    title: '我的位置'
+                });
+                
+                // 模拟安静地点数据（蓝色区域）
+                const quietPlaces = [
+                    { name: "街角公园", lng: center[0] + 0.003, lat: center[1] + 0.002 },
+                    { name: "小巷咖啡", lng: center[0] - 0.002, lat: center[1] + 0.003 },
+                    { name: "河边长椅", lng: center[0] + 0.001, lat: center[1] - 0.003 },
+                    { name: "老书店", lng: center[0] - 0.003, lat: center[1] - 0.001 },
+                ];
+                
+                // 在安静地点添加可点击标记
+                quietPlaces.forEach(place => {
+                    const marker = new AMap.Marker({
+                        position: [place.lng, place.lat],
+                        map: map,
+                        icon: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_r.png',
+                        title: place.name
+                    });
+                    
+                    // 点击标记规划步行路线
+                    marker.on('click', function() {
+                        planWalkRoute(center, [place.lng, place.lat], place.name);
+                    });
+                });
+                
+                // 模拟热力数据
+                const heatData = [];
+                for (let i = 0; i < 80; i++) {
+                    const offsetX = (Math.random() - 0.5) * 0.015;
+                    const offsetY = (Math.random() - 0.5) * 0.015;
+                    const lng = center[0] + offsetX;
+                    const lat = center[1] + offsetY;
+                    const dist = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
+                    const count = Math.max(1, Math.floor((0.008 - dist) * 800));
+                    
+                    heatData.push({ lng: lng, lat: lat, count: Math.max(1, count) });
+                }
+                
+                // 添加热力图
                 const heatmap = new AMap.HeatMap(map, {
-                    radius: 35,
-                    opacity: [0.3, 0.9],
+                    radius: 40,
+                    opacity: [0.3, 0.85],
                     gradient: {
-                        0.0: '#3b82f6',   // 蓝色 - 极少
-                        0.3: '#60a5fa',   // 浅蓝 - 较少
-                        0.5: '#fbbf24',   // 黄色 - 中等
-                        0.7: '#f97316',   // 橙色 - 较多
-                        1.0: '#dc2626'    // 红色 - 最多
+                        0.0: '#3b82f6',
+                        0.3: '#60a5fa',
+                        0.5: '#fbbf24',
+                        0.7: '#f97316',
+                        1.0: '#dc2626'
                     }
                 });
-                heatmap.setDataSet({ data: heatData, max: 80 });
+                heatmap.setDataSet({ data: heatData, max: 60 });
+                
+                // 点击地图任意位置规划路线
+                map.on('click', function(e) {
+                    const clickedLng = e.lnglat.getLng();
+                    const clickedLat = e.lnglat.getLat();
+                    
+                    // 计算距离
+                    const dist = calculateDistance(center[1], center[0], clickedLat, clickedLng);
+                    const walkTime = Math.round(dist / 5 * 60);
+                    
+                    if (walkTime <= 10) {
+                        planWalkRoute(center, [clickedLng, clickedLat], '选定地点');
+                    } else {
+                        alert('该地点步行超过10分钟，建议选近一点的安静角落');
+                    }
+                });
+            });
+        }
+        
+        // 计算两点距离（公里）
+        function calculateDistance(lat1, lng1, lat2, lng2) {
+            const R = 6371;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLng = (lng2 - lng1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng/2) * Math.sin(dLng/2);
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        }
+        
+        // 规划步行路线
+        let walkingRoute = null;
+        function planWalkRoute(start, end, placeName) {
+            // 清除之前的路线
+            if (walkingRoute) {
+                walkingRoute.clear();
+            }
+            
+            // 创建步行导航
+            walkingRoute = new AMap.Walking({
+                map: map,
+                panel: false
+            });
+            
+            walkingRoute.search(start, end, function(status, result) {
+                if (status === 'complete') {
+                    const route = result.routes[0];
+                    const distance = route.distance;
+                    const time = Math.round(route.time / 60);
+                    
+                    if (time <= 10) {
+                        document.getElementById('locationStatus').textContent = `${placeName} · 步行${time}分钟`;
+                    } else {
+                        document.getElementById('locationStatus').textContent = '超过10分钟步行范围';
+                    }
+                }
             });
         }
 
