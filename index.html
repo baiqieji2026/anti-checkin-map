@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>我想静静 - 反打卡地图</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .place-card { transition: all 0.2s; }
+        .place-card:active { transform: scale(0.98); }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="bg-white border-b px-4 py-3 sticky top-0 z-10">
+        <h1 class="text-lg font-semibold text-gray-800">我想静静</h1>
+        <p class="text-xs text-gray-500">找人少、安静、可独处的地方</p>
+    </div>
+
+    <div class="bg-blue-50 px-4 py-2 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+            <span class="w-2 h-2 bg-blue-500 rounded-full animate-pulse" id="loc-dot"></span>
+            <span class="text-sm text-blue-700" id="location-status">正在定位...</span>
+        </div>
+        <button onclick="getLocation()" class="text-sm text-blue-600">刷新</button>
+    </div>
+
+    <div id="places-list" class="divide-y"></div>
+
+    <script>
+        const locations = [
+            { name: "越秀公园东北角", address: "越秀区解放北路", lat: 23.1408, lng: 113.2644, quiet: 4, time: "工作日下午", desc: "本地人晨练区域，游客少至" },
+            { name: "天河公园西门小湖", address: "天河区黄埔大道中", lat: 23.1286, lng: 113.3617, quiet: 4, time: "上午9-11点", desc: "小湖周边有石凳，非游船区域" },
+            { name: "海珠湖公园西侧栈道", address: "海珠区新滘中路", lat: 23.0703, lng: 113.3144, quiet: 5, time: "清晨7-9点", desc: "栈道深入湿地，观鸟人群少至" },
+            { name: "白云山摩星岭后山", address: "白云区广园中路", lat: 23.1833, lng: 113.3000, quiet: 4, time: "工作日全天", desc: "后山小路，本地登山者才知道" },
+            { name: "珠江公园东区", address: "天河区金穗路", lat: 23.1250, lng: 113.3333, quiet: 4, time: "工作日下午", desc: "树林茂密，无网红拍照点" },
+            { name: "荔湾湖公园老西关", address: "荔湾区龙津西路", lat: 23.1167, lng: 113.2500, quiet: 4, time: "清晨、傍晚", desc: "老广州生活区，非游客打卡点" },
+            { name: "东山口新河浦老别墅区", address: "越秀区新河浦路", lat: 23.1208, lng: 113.3000, quiet: 5, time: "工作日上午", desc: "老别墅区深处，无咖啡店" },
+            { name: "西关大屋群", address: "荔湾区多宝路", lat: 23.1167, lng: 113.2333, quiet: 4, time: "全天", desc: "原住民生活区，无商业开发" },
+            { name: "沙面岛北侧", address: "荔湾区沙面北街", lat: 23.1083, lng: 113.2500, quiet: 4, time: "工作日上午", desc: "老领事馆区深处，游客少至" },
+            { name: "华侨新村老别墅区", address: "越秀区爱国路", lat: 23.1333, lng: 113.2833, quiet: 5, time: "全天", desc: "老归侨居住区，无商业" },
+            { name: "江南西青凤大街", address: "海珠区江南西路", lat: 23.1000, lng: 113.2667, quiet: 3, time: "工作日下午", desc: "老居民区，远离网红店" },
+            { name: "珠江前航道员村段", address: "天河区员村二横路", lat: 23.1167, lng: 113.3500, quiet: 4, time: "清晨、傍晚", desc: "本地钓鱼者聚集地" },
+            { name: "琶洲大桥下", address: "海珠区琶洲大桥北", lat: 23.1000, lng: 113.3667, quiet: 3, time: "清晨6-8点", desc: "桥底空间，本地跑步者知道" },
+            { name: "芳村花地河沿岸", address: "荔湾区花地大道南", lat: 23.0833, lng: 113.2333, quiet: 4, time: "傍晚", desc: "老芳村区域，非景点" },
+            { name: "洛溪岛江边", address: "番禺区洛溪岛东侧", lat: 23.0333, lng: 113.3167, quiet: 4, time: "全天", desc: "番禺边缘区域，人少" },
+            { name: "广州图书馆8-9楼", address: "天河区珠江新城", lat: 23.1208, lng: 113.3250, quiet: 5, time: "工作日上午", desc: "非考试季人少，有靠窗座位" },
+            { name: "广东省博物馆", address: "天河区珠江新城", lat: 23.1167, lng: 113.3250, quiet: 4, time: "工作日上午", desc: "非临展期间人少" },
+            { name: "方所书店", address: "天河区太古汇", lat: 23.1333, lng: 113.3333, quiet: 3, time: "工作日上午", desc: "非周末上午人少" },
+            { name: "红专厂旧址", address: "天河区员村四横路", lat: 23.1167, lng: 113.3667, quiet: 5, time: "白天", desc: "部分区域未重建，老厂房氛围" },
+            { name: "珠江啤酒厂旧址", address: "海珠区琶洲", lat: 23.1000, lng: 113.3500, quiet: 4, time: "全天", desc: "工业遗址，非景点" }
+        ];
+
+        function getDistance(lat1, lng1, lat2, lng2) {
+            const R = 6371;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLng = (lng2 - lng1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng/2) * Math.sin(dLng/2);
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        }
+
+        function getQuietStars(level) {
+            return '★'.repeat(level) + '☆'.repeat(5 - level);
+        }
+
+        function renderPlaces(userLat, userLng) {
+            const withDist = locations.map(p => ({...p, dist: getDistance(userLat, userLng, p.lat, p.lng)}));
+            withDist.sort((a, b) => a.dist - b.dist);
+            
+            const top3 = withDist.slice(0, 3);
+            const html = top3.map((p, i) => `
+                <div class="place-card bg-white px-4 py-4">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2">
+                                <span class="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded">${i + 1}</span>
+                                <h3 class="font-medium text-gray-900">${p.name}</h3>
+                            </div>
+                            <p class="text-sm text-gray-500 mt-1">${p.address}</p>
+                            <p class="text-sm text-gray-600 mt-2">${p.desc}</p>
+                            <div class="flex items-center gap-4 mt-2 text-xs">
+                                <span class="text-green-600">安静指数: ${getQuietStars(p.quiet)}</span>
+                                <span class="text-gray-500">最佳时段: ${p.time}</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-lg font-semibold text-blue-600">${p.dist.toFixed(1)}km</p>
+                            <a href="https://uri.amap.com/navigation?to=${p.lng},${p.lat},${p.name}&mode=car&coordinate=gaode" 
+                               class="inline-block mt-2 bg-blue-500 text-white text-xs px-3 py-1.5 rounded">导航</a>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('places-list').innerHTML = html;
+        }
+
+        function getLocation() {
+            document.getElementById('location-status').textContent = '正在定位...';
+            document.getElementById('loc-dot').classList.add('animate-pulse');
+            
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        document.getElementById('location-status').textContent = `已定位: ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+                        document.getElementById('loc-dot').classList.remove('animate-pulse');
+                        renderPlaces(lat, lng);
+                    },
+                    (error) => {
+                        document.getElementById('location-status').textContent = '定位失败，使用默认位置(天河区)';
+                        document.getElementById('loc-dot').classList.remove('animate-pulse');
+                        renderPlaces(23.1291, 113.2644);
+                    }
+                );
+            } else {
+                document.getElementById('location-status').textContent = '浏览器不支持定位，使用默认位置';
+                renderPlaces(23.1291, 113.2644);
+            }
+        }
+
+        // 页面加载时自动定位
+        getLocation();
+    </script>
+</body>
+</html>
