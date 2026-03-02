@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>我想静静</title>
     <script src="https://webapi.amap.com/maps?v=1.4.15&key=f987015a56c3e1f3e64d8364fa9844c4"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, sans-serif; overflow: hidden; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; overflow: hidden; -webkit-overflow-scrolling: touch; }
         .home { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; transition: opacity 0.8s ease; background: #000; }
         .home.fade-out { opacity: 0; pointer-events: none; }
         .gallery-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; transition: opacity 0.5s ease; }
@@ -115,7 +117,15 @@
         }
 
         function showArtwork(idx) {
-            const item = shuffledArtworks[idx], bg = document.getElementById('galleryBg');
+            const item = window.shuffledArtworks ? window.shuffledArtworks[idx] : null;
+            if (!item) {
+                console.error('素材加载失败，使用默认');
+                // 显示默认黑色背景
+                bg.style.backgroundColor = '#0a0a0a';
+                return;
+            }
+            
+            const bg = document.getElementById('galleryBg');
             document.querySelector('.text-overlay')?.remove();
             document.getElementById('artworkTitle').textContent = item.type === 'text' ? item.title : '';
             document.getElementById('artworkArtist').textContent = item.type === 'text' ? item.artist : '';
@@ -125,19 +135,12 @@
                 bg.style.backgroundColor = '#0a0a0a';
                 const overlay = document.createElement('div'); 
                 overlay.className = 'text-overlay';
-                overlay.innerHTML = `<div class="text-content">${item.text.replace(/\n/g, '<br>')}</div>`;
+                overlay.innerHTML = '<div class="text-content">' + item.text.replace(/\n/g, '<br>') + '</div>';
                 bg.parentNode.insertBefore(overlay, bg.nextSibling);
             } else {
-                // 画作或照片
-                bg.style.backgroundImage = `url(${item.url})`; 
-                bg.style.backgroundColor = '';
-                // 添加错误处理
-                const img = new Image();
-                img.onerror = () => {
-                    console.log('图片加载失败:', item.url);
-                    bg.style.backgroundColor = '#1a1a1a';
-                };
-                img.src = item.url;
+                // 画作 - 使用更兼容的方式
+                bg.style.backgroundImage = 'url(' + item.url + ')'; 
+                bg.style.backgroundColor = '#1a1a1a';
             }
         }
 
@@ -165,61 +168,68 @@
             // 检查高德API
             if (typeof AMap === 'undefined') {
                 console.error('高德API未加载');
-                mapDiv.innerHTML = '<div style="width:100%;height:100%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#666;">地图加载失败</div>';
+                mapDiv.innerHTML = '<div style="width:100%;height:100%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#666;font-size:14px;">地图服务加载失败</div>';
                 return;
             }
             
-            // 直接使用默认位置创建地图（避免定位问题）
-            const defaultPos = [113.2644, 23.1291];
-            createMap(defaultPos);
+            // Safari 兼容性：延迟初始化
+            setTimeout(function() {
+                try {
+                    const defaultPos = [113.2644, 23.1291];
+                    createMap(defaultPos);
+                } catch (e) {
+                    console.error('地图初始化失败:', e);
+                    mapDiv.innerHTML = '<div style="width:100%;height:100%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#666;font-size:14px;">地图加载失败</div>';
+                }
+            }, 100);
         }
         
         function createMap(center) {
-            try {
-                map = new AMap.Map('gaodeMap', { 
-                    zoom: 15, 
-                    center: center, 
-                    mapStyle: 'amap://styles/dark'
-                });
-                
-                // 添加用户位置标记
-                new AMap.Marker({ 
-                    position: center, 
-                    map: map, 
-                    icon: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_b.png',
-                    title: '我的位置'
-                });
-                
-                // 添加4个安静地点
-                const places = [
-                    { name: "街角公园", pos: [center[0] + 0.003, center[1] + 0.002] },
-                    { name: "小巷咖啡", pos: [center[0] - 0.002, center[1] + 0.003] },
-                    { name: "河边长椅", pos: [center[0] + 0.001, center[1] - 0.003] },
-                    { name: "老书店", pos: [center[0] - 0.003, center[1] - 0.001] }
-                ];
-                
-                places.forEach(p => {
-                    const marker = new AMap.Marker({ 
-                        position: p.pos, 
-                        map: map, 
-                        icon: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_r.png',
-                        title: p.name
+            var mapDiv = document.getElementById('gaodeMap');
+            
+            // 清空容器
+            mapDiv.innerHTML = '';
+            
+            // 创建地图 - 使用更兼容的写法
+            map = new AMap.Map('gaodeMap', { 
+                zoom: 15, 
+                center: center
+            });
+            
+            // 添加标记
+            var marker = new AMap.Marker({ 
+                position: center, 
+                title: '我的位置'
+            });
+            marker.setMap(map);
+            
+            // 添加4个安静地点
+            var places = [
+                { name: "街角公园", pos: [center[0] + 0.003, center[1] + 0.002] },
+                { name: "小巷咖啡", pos: [center[0] - 0.002, center[1] + 0.003] },
+                { name: "河边长椅", pos: [center[0] + 0.001, center[1] - 0.003] },
+                { name: "老书店", pos: [center[0] - 0.003, center[1] - 0.001] }
+            ];
+            
+            for (var i = 0; i < places.length; i++) {
+                (function(place) {
+                    var m = new AMap.Marker({ 
+                        position: place.pos,
+                        title: place.name
                     });
-                    marker.on('click', () => {
-                        alert('点击了: ' + p.name);
+                    m.setMap(map);
+                    m.on('click', function() {
+                        alert('点击了: ' + place.name);
                     });
-                });
-                
-                // 点击地图
-                map.on('click', e => {
-                    alert('地图点击: ' + e.lnglat.getLng() + ', ' + e.lnglat.getLat());
-                });
-                
-                console.log('地图创建成功');
-            } catch (err) {
-                console.error('地图创建失败:', err);
-                document.getElementById('gaodeMap').innerHTML = '<div style="width:100%;height:100%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#666;">地图创建失败</div>';
+                })(places[i]);
             }
+            
+            // 点击地图
+            map.on('click', function(e) {
+                alert('地图点击: ' + e.lnglat.getLng() + ', ' + e.lnglat.getLat());
+            });
+            
+            console.log('地图创建成功');
         }
 
         function createMap(center) {
