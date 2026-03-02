@@ -150,14 +150,10 @@
         }
         
         function nxt(){
-            bg.className='fade';
-            setTimeout(function(){
-                var ni;
-                do{ni=Math.floor(Math.random()*artworks.length);}while(ni===lastIdx && artworks.length>1);
-                cur=ni;lastIdx=ni;
-                show(cur);
-                bg.className='';
-            },500);
+            var ni;
+            do{ni=Math.floor(Math.random()*artworks.length);}while(ni===lastIdx && artworks.length>1);
+            cur=ni;lastIdx=ni;
+            show(cur);
         }
         
         function initGallery(){show(0);timer=setInterval(nxt,3000);}
@@ -280,6 +276,17 @@
             if(route){route.clear();}
             dest={e:e,n:n};
             
+            // 确保 Walking 插件已加载
+            if(typeof AMap.Walking==='undefined'){
+                AMap.plugin(['AMap.Walking'],function(){
+                    doPlanRoute(s,e,n);
+                });
+            }else{
+                doPlanRoute(s,e,n);
+            }
+        }
+        
+        function doPlanRoute(s,e,n){
             try{
                 route=new AMap.Walking({map:map,panel:false});
                 route.search(s,e,function(status,result){
@@ -294,7 +301,7 @@
                         b.disabled=false;
                         b.textContent='开始步行导航 ('+t+'分钟)';
                     }else{
-                        showToast('路线规划失败');
+                        showToast('路线规划失败:'+status);
                     }
                 });
             }catch(err){
