@@ -4,7 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>我想静静</title>
-    <script src="https://webapi.amap.com/maps?v=2.0&key=f987015a56c3e1f3e64d8364fa9844c4&plugin=AMap.HeatMap,AMap.Walking,AMap.Geocoder,AMap.Geolocation"></script>
+    <script src="https://webapi.amap.com/maps?v=1.4.15&key=f987015a56c3e1f3e64d8364fa9844c4"></script>
+    <script>
+        // 确保高德API加载完成
+        window.onload = function() {
+            if (typeof AMap === 'undefined') {
+                console.error('高德地图API加载失败');
+                return;
+            }
+            // 加载插件
+            AMap.plugin(['AMap.HeatMap', 'AMap.Walking', 'AMap.Geolocation'], function() {
+                console.log('高德插件加载完成');
+            });
+        };
+    </script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, sans-serif; overflow: hidden; }
@@ -336,24 +349,27 @@
         }
 
         function initGaodeMap() {
-            // 使用高德地图定位
-            const geolocation = new AMap.Geolocation({
-                enableHighAccuracy: true,
-                timeout: 10000,
-                buttonPosition: 'RB',
-                buttonOffset: new AMap.Pixel(10, 20),
-                zoomToAccuracy: true
-            });
-            
-            geolocation.getCurrentPosition(function(status, result) {
-                if (status === 'complete') {
-                    const lng = result.position.getLng();
-                    const lat = result.position.getLat();
-                    initMapWithHeat([lng, lat]);
-                } else {
-                    // 定位失败使用默认位置（广州）
-                    initMapWithHeat([113.2644, 23.1291]);
-                }
+            // 先加载插件
+            AMap.plugin(['AMap.Geolocation', 'AMap.HeatMap', 'AMap.Walking'], function() {
+                // 使用高德地图定位
+                const geolocation = new AMap.Geolocation({
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    buttonPosition: 'RB',
+                    zoomToAccuracy: true
+                });
+                
+                geolocation.getCurrentPosition(function(status, result) {
+                    if (status === 'complete') {
+                        const lng = result.position.getLng();
+                        const lat = result.position.getLat();
+                        initMapWithHeat([lng, lat]);
+                    } else {
+                        // 定位失败使用默认位置（广州）
+                        console.log('定位失败:', result.message);
+                        initMapWithHeat([113.2644, 23.1291]);
+                    }
+                });
             });
         }
         
