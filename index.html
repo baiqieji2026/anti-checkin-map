@@ -285,11 +285,13 @@
     <script src="artworks.js"></script>
     <script>
         let currentArtwork = 0, galleryInterval, map = null;
+        let lastArtwork = -1; // 记录上一张，防止重复
 
         function initGallery() {
             const bg = document.getElementById('galleryBg');
             // 随机选择起始位置
             currentArtwork = Math.floor(Math.random() * shuffledArtworks.length);
+            lastArtwork = currentArtwork;
             updateArtworkInfo(currentArtwork);
             // 3秒切换
             galleryInterval = setInterval(nextArtwork, 3000);
@@ -299,8 +301,14 @@
             const bg = document.getElementById('galleryBg');
             bg.classList.add('fade');
             setTimeout(() => {
-                // 随机选择下一张（不是顺序）
-                currentArtwork = Math.floor(Math.random() * shuffledArtworks.length);
+                // 随机选择下一张，确保不重复
+                let nextIndex;
+                do {
+                    nextIndex = Math.floor(Math.random() * shuffledArtworks.length);
+                } while (nextIndex === lastArtwork && shuffledArtworks.length > 1);
+                
+                currentArtwork = nextIndex;
+                lastArtwork = nextIndex;
                 updateArtworkInfo(currentArtwork);
                 bg.classList.remove('fade');
             }, 500);
@@ -350,8 +358,19 @@
         }
 
         function initGaodeMap() {
-            // 先加载插件
+            console.log('初始化高德地图...');
+            
+            // 检查高德API是否加载
+            if (typeof AMap === 'undefined') {
+                console.error('高德API未加载');
+                showToast('地图加载失败，请刷新重试');
+                return;
+            }
+            
+            // 加载插件
             AMap.plugin(['AMap.Geolocation', 'AMap.HeatMap', 'AMap.Walking'], function() {
+                console.log('高德插件加载完成');
+                
                 // 使用高德地图定位
                 const geolocation = new AMap.Geolocation({
                     enableHighAccuracy: true,
@@ -361,13 +380,17 @@
                 });
                 
                 geolocation.getCurrentPosition(function(status, result) {
+                    console.log('定位状态:', status, result);
+                    
                     if (status === 'complete') {
                         const lng = result.position.getLng();
                         const lat = result.position.getLat();
+                        console.log('定位成功:', lng, lat);
                         initMapWithHeat([lng, lat]);
                     } else {
                         // 定位失败使用默认位置（广州）
-                        console.log('定位失败:', result.message);
+                        console.log('定位失败，使用默认位置');
+                        showToast('定位失败，使用默认位置');
                         initMapWithHeat([113.2644, 23.1291]);
                     }
                 });
